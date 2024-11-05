@@ -5,6 +5,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### Application properties ###
+application-*.properties
+
 ### STS ###
 .apt_generated
 .classpath
@@ -35,3 +38,23 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Log files ###
+*.log
+logs/
+
+### Temp files ###
+*.tmp
+*.temp
+*.swp
+*.swo
+
+### macOS ###
+.DS_Store
+
+### Windows ###
+Thumbs.db
+
+### Docker ###
+.env
+docker-compose.override.yml

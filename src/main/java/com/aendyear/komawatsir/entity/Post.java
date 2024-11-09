@@ -35,4 +35,7 @@ public class Post {
     public enum Status {
         PENDING, PROGRESSING, COMPLETED, DELETED
     }
+
+    @Column(name = "is_sms_allowed", nullable = false)
+    private Boolean isSmsAllowed = false;
 }

@@ -19,5 +19,7 @@ public class Font {
 
     @Column(length = 255)
     private String url;
+
+    private String color;
 }
 

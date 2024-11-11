@@ -7,21 +7,18 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class User {
+public class InquiryItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 50)
-    private String name;
-
-    @Column(length = 20)
-    private String tel;
-
-    @Column(nullable = false, length = 100)
-    private String kakaoId;
+    @ManyToOne
+    @JoinColumn(name = "inquiry_id", nullable = false)
+    private Inquiry inquiry;
 
     @Column
-    private Boolean isSmsAllowed;
-}
+    private String question;
 
+    @Column
+    private String description;
+}

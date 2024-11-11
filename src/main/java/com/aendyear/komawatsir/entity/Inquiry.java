@@ -7,7 +7,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Receiver {
+public class Inquiry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -16,12 +16,6 @@ public class Receiver {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(length = 50)
-    private String nickname;
-
-    @Column(length = 20)
-    private String tel;
-
-    @Column(columnDefinition = "TEXT")
-    private String memo;
+    @Column(length = 4)
+    private String year;
 }

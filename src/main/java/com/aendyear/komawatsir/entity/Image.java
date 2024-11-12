@@ -1,12 +1,14 @@
 package com.aendyear.komawatsir.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +20,7 @@ public class Image {
     @Column(length = 100)
     private String name;
 
-    @Lob
-    private byte[] pic;
+    private String pic;
 
     private Boolean isFront;
 

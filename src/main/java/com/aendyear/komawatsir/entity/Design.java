@@ -1,32 +1,30 @@
 package com.aendyear.komawatsir.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Design {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Integer userId;
 
-    @ManyToOne
-    @JoinColumn(name = "background_id")
-    private Image background;
+    @Column(name = "background_id")
+    private Integer backgroundId;
 
-    @ManyToOne
-    @JoinColumn(name = "thumbnail_id")
-    private Image thumbnail;
+    @Column(name = "thumbnail_id")
+    private Integer thumbnailId;
 
-    @ManyToOne
-    @JoinColumn(name = "font_id")
-    private Font font;
+    @Column(name = "font_id")
+    private Integer fontId;
 
     private Integer year;
 }

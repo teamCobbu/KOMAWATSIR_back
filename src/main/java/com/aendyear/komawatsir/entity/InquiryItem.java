@@ -1,20 +1,21 @@
 package com.aendyear.komawatsir.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class InquiryItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "inquiry_id", nullable = false)
-    private Inquiry inquiry;
+    @Column(name = "inquiry_id", nullable = false)
+    private Integer inquiryId;
 
     @Column
     private String question;

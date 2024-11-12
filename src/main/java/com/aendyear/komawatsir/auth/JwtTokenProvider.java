@@ -66,7 +66,7 @@ public class JwtTokenProvider {
 
     // 토큰에서 인증 정보 가져오기
     public Authentication getAuthentication(String token) {
-        String kakaoUserId = getUserId(token); // 카카오 사용자 ID를 토큰에서 추출
+        String userId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
         KakaoUser kakaoUser = kakaoUserService.getKakaoUserInfo(token); // 카카오에서 사용자 정보 가져오기
         UserDetails userDetails = new CustomUserDetails(kakaoUser); // CustomUserDetails는 사용자의 정보를 포함한 클래스
 

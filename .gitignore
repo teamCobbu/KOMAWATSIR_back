@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 
 ### Application properties ###
+/src/main/resources/application.properties
 application-*.properties
 
 ### STS ###

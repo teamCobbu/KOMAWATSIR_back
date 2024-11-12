@@ -1,6 +1,7 @@
 package com.aendyear.komawatsir.controller;
 
 import com.aendyear.komawatsir.service.DesignService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,8 +16,9 @@ public class DesignController {
     @Autowired
     private DesignService designService;
 
-    // 디자인 추가
 //    @PostMapping
+//    @Operation(summary = "add design", description = "디자인 추가")
+
 
     // 디자인 정보 수정
 //    @PutMapping("/{designId}")

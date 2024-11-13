@@ -13,7 +13,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
     private final String secretKey;
-    private long expirationTime;
+    private final long expirationTime;
     private final KakaoUserService kakaoUserService;  // Kakao 사용자 정보를 가져오는 서비스
 
     public JwtTokenProvider(JwtConfig jwtConfig, KakaoUserService kakaoUserService) {
@@ -23,8 +23,8 @@ public class JwtTokenProvider {
     }
 
     // 토큰 생성 메서드
-    public String createToken(String userId) {
-        Claims claims = Jwts.claims().setSubject(userId);
+    public String createToken(String kakaoId) {
+        Claims claims = Jwts.claims().setSubject(kakaoId);
         Date now = new Date();
         Date validity = new Date(now.getTime() + expirationTime);
 
@@ -66,8 +66,10 @@ public class JwtTokenProvider {
 
     // 토큰에서 인증 정보 가져오기
     public Authentication getAuthentication(String token) {
-        String userId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
+        String KakaoId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
+        System.out.println("getAuthentication : " +KakaoId );
         KakaoUser kakaoUser = kakaoUserService.getKakaoUserInfo(token); // 카카오에서 사용자 정보 가져오기
+        System.out.println("getAuthentication : " +kakaoUser );
         UserDetails userDetails = new CustomUserDetails(kakaoUser); // CustomUserDetails는 사용자의 정보를 포함한 클래스
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

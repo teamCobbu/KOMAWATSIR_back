@@ -11,7 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
+//@Component //빈 자동등록때문에 나중에 활성화
 public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토큰을 검증
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -22,9 +22,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
         String token = jwtTokenProvider.resolveToken(request);
 
-        if (token == null) { // 토큰이 없는 경우
+        if (token == null) { // 토큰이 없는 경우 (401)
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization token is missing");
             return;
         }
@@ -36,7 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired JWT token");
             return;
         }
-
         filterChain.doFilter(request, response);
     }
 }

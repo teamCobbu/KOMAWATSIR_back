@@ -23,7 +23,7 @@ import java.util.Optional;
 public class ReceiverService {
 
     String year = String.valueOf(LocalDate.now().getYear());
-    String nextYear = year + 1;
+    String nextYear = String.valueOf(LocalDate.now().getYear() + 1);
 
     @Autowired
     private ReceiverRepository receiverRepository;
@@ -36,9 +36,10 @@ public class ReceiverService {
 
     // 수신인 추가하기
     @Transactional
-    public Receiver postAddReceiver(Integer userId, ReceiverDto dto) {
+    public Receiver postAddReceiver(Integer senderId, ReceiverDto dto) {
         Receiver result = new Receiver();
         try {
+            dto.setSenderId(senderId);
             result = receiverRepository.save(Mapper.toEntity(dto));
         } catch (Exception e) {
             System.out.println("postAddReceiver ERROR : " + e.getMessage());
@@ -47,13 +48,13 @@ public class ReceiverService {
     }
 
     // 수신인 설문 응답 조회하기
-    public List<ReceiverQuestionDto> getReceiverQuestion(Integer senderId, Integer receiverUserId) {
+    public List<ReceiverQuestionDto> getReceiverQuestion(Integer senderId, Integer receiverId) {
 
         List<ReceiverQuestionDto> result = new ArrayList<>();
-
-        Optional<Receiver> receiver = receiverRepository.findBySenderIdAndReceiverUserIdAndYear(senderId, receiverUserId, year);
+        Optional<Receiver> receiver = receiverRepository.findById(receiverId);
 
         if (receiver.isPresent()) {
+            System.out.println("getReceiverQuestion SUCCESS");
             result = receiverQuestionRepository.findByReceiverId(receiver.get().getId()).stream().map(Mapper::toDto).toList();
 
             result.forEach(dto -> {

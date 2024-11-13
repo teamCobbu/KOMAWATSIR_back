@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/inquiry/{userId}")
 public class InquiryController {
 
@@ -22,10 +22,11 @@ public class InquiryController {
     @GetMapping
     @Operation(summary = "inquiry question list", description = "질문 목록 불러오기")
     public ResponseEntity<List<InquiryItemDto>> getQuestionList(@PathVariable Integer userId) {
+        System.out.println(userId);
         return ResponseEntity.ok(inquiryService.getQuestionList(userId));
     }
 
-    @PostMapping("/nickname")
+    @PostMapping("/{nickname}")
     @Operation(summary = "add inquiry", description = "닉네임 설정하기")
     public ResponseEntity<Inquiry> postQuestion(@PathVariable Integer userId, @PathVariable String nickname) {
         return ResponseEntity.ok(inquiryService.postQuestion(userId, nickname));

@@ -14,10 +14,10 @@ public class Receiver {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "user_id", insertable = false, updatable = false)
+    @Column(name = "sender_id")
     private Integer senderId;
 
-    @Column(name = "user_id", insertable = false, updatable = false)
+    @Column(name = "receiver_user_id")
     private Integer receiverUserId;
 
     @Column(length = 50)

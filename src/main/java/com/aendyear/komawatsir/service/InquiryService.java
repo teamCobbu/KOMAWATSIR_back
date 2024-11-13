@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class InquiryService {
 
     String year = String.valueOf(LocalDate.now().getYear());
-    String nextYear = year + 1;
+    String nextYear = String.valueOf(LocalDate.now().getYear() + 1);
 
     @Autowired
     private InquiryRepository inquiryRepository;
@@ -33,10 +33,28 @@ public class InquiryService {
     public List<InquiryItemDto> getQuestionList(Integer userId) {
         List<InquiryItemDto> result = new ArrayList<>();
         Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
+        System.out.println("nextYear : " + nextYear);
         if (inquiry.isPresent()) {
             result = inquiryItemRepository.findByInquiryId(inquiry.get().getUserId()).stream().map(Mapper::toDto).collect(Collectors.toList());
         }
         return result;
+    }
+
+    // 닉네임 등록하기
+    @Transactional
+    public Inquiry postQuestion(Integer userId, String nickname) {
+        Inquiry inquiry = new Inquiry();
+        try {
+            // 초기 닉네임 등록과 동시에 inquiry 데이터 생성
+            inquiry.setUserId(userId);
+            inquiry.setYear(nextYear);
+            inquiry.setNickname(nickname);
+
+            inquiry = inquiryRepository.save(inquiry);
+        } catch (Exception e) {
+            System.out.println("postQuestion : " + e.getMessage());
+        }
+        return inquiry;
     }
 
     // 신청 질문 추가하기
@@ -53,24 +71,6 @@ public class InquiryService {
             System.out.println("postInsertQuestion : " + e.getMessage());
         }
         return result;
-    }
-
-    // 닉네임 등록하기
-    @Transactional
-    public Inquiry postQuestion(Integer userId, String nickname) {
-        Inquiry inquiry = new Inquiry();
-        try {
-
-            // 초기 닉네임 등록과 동시에 inquiry 데이터 생성
-            inquiry.setUserId(userId);
-            inquiry.setYear(nextYear);
-            inquiry.setNickname(nickname);
-
-            inquiry = inquiryRepository.save(inquiry);
-        } catch (Exception e) {
-            System.out.println("postQuestion : " + e.getMessage());
-        }
-        return inquiry;
     }
 
     // 질문 수정하기

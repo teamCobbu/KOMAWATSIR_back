@@ -15,4 +15,6 @@ public class ReceiverQuestionDto {
     private Integer receiverId;
 
     private String answer;
+
+    private String question;
 }

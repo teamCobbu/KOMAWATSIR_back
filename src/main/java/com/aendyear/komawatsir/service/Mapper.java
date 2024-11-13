@@ -158,20 +158,26 @@ public class Mapper {
     public static Receiver toEntity(ReceiverDto dto) {
         return Receiver.builder()
                 .id(dto.getId())
-                .userId(dto.getUserId())
+                .senderId(dto.getSenderId())
+                .receiverUserId(dto.getReceiverUserId())
                 .nickname(dto.getNickname())
                 .tel(dto.getTel())
                 .memo(dto.getMemo())
+                .year(dto.getYear())
+                .isDeleted(dto.getIsDeleted())
                 .build();
     }
 
     public static ReceiverDto toDto(Receiver entity) {
         return ReceiverDto.builder()
                 .id(entity.getId())
-                .userId(entity.getUserId())
+                .senderId(entity.getSenderId())
+                .receiverUserId(entity.getReceiverUserId())
                 .nickname(entity.getNickname())
                 .tel(entity.getTel())
                 .memo(entity.getMemo())
+                .year(entity.getYear())
+                .isDeleted(entity.getIsDeleted())
                 .build();
     }
 

@@ -16,13 +16,13 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // 권한 설정 (예: ROLE_USER)
+        // GrantedAuthority 권한 설정 (예: ROLE_USER)
         return List.of(() -> "ROLE_USER");
     }
 
     @Override
     public String getPassword() {
-        return null;  // 카카오는 패스워드를 사용하지 않음
+        return "";  // 카카오는 패스워드를 사용하지 않음
     }
 
     @Override

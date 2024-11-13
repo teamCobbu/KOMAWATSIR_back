@@ -1,5 +1,6 @@
 package com.aendyear.komawatsir.entity;
 
+import com.aendyear.komawatsir.type.PostStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,11 +29,9 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private Status status;
+    private PostStatus status;
 
     private Integer year;
 
-    public enum Status {
-        PENDING, PROGRESSING, COMPLETED, DELETED
-    }
+
 }

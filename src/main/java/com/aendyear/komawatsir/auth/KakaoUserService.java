@@ -12,8 +12,14 @@ public class KakaoUserService {
 
     private static final String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
 
+    private final RestTemplate restTemplate;
+
+    // RestTemplate 빈 주입
+    public KakaoUserService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     public KakaoUser getKakaoUserInfo(String accessToken) {
-        RestTemplate restTemplate = new RestTemplate();
         String url = KAKAO_USER_INFO_URL;
 
         // 헤더에 accessToken 추가

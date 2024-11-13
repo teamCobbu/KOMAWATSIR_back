@@ -29,7 +29,7 @@ public class Image {
     private SourceType sourceType;
 
     public enum SourceType {
-        SERVICE, USER, THIRD_PARTY
+        SERVICE, USER
     }
 }
 

@@ -13,4 +13,6 @@ public class InquiryDto {
     private Integer userId;
 
     private String year;
+
+    private String nickname;
 }

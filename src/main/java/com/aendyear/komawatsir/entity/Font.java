@@ -1,5 +1,6 @@
 package com.aendyear.komawatsir.entity;
 
+import com.aendyear.komawatsir.type.FontColor;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,9 @@ public class Font {
     @Column(length = 255)
     private String url;
 
-    private String color;
+    @Enumerated(EnumType.STRING)
+    private FontColor color;
+
+
 }
 

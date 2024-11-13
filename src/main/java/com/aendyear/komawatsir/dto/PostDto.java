@@ -1,6 +1,7 @@
 package com.aendyear.komawatsir.dto;
 
 import com.aendyear.komawatsir.entity.Post;
+import com.aendyear.komawatsir.type.PostStatus;
 import lombok.*;
 
 @Getter
@@ -19,11 +20,7 @@ public class PostDto {
 
     private String contents;
 
-    private Post.Status status;
+    private PostStatus status;
 
     private Integer year;
-
-    public enum Status {
-        PENDING, PROGRESSING, COMPLETED, DELETED
-    }
 }

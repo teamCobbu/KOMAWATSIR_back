@@ -1,5 +1,6 @@
 package com.aendyear.komawatsir.dto;
 
+import com.aendyear.komawatsir.type.FontColor;
 import lombok.*;
 
 @Getter
@@ -16,5 +17,6 @@ public class FontDto {
 
     private String url;
 
-    private String color;
+    private FontColor color;
+
 }

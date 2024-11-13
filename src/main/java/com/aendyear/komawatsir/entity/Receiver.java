@@ -14,8 +14,11 @@ public class Receiver {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Integer senderId;
+
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Integer receiverUserId;
 
     @Column(length = 50)
     private String nickname;
@@ -25,4 +28,8 @@ public class Receiver {
 
     @Column(columnDefinition = "TEXT")
     private String memo;
+
+    private String year;
+
+    private Boolean isDeleted;
 }

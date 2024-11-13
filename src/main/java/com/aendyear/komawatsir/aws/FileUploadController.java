@@ -28,7 +28,6 @@ public class FileUploadController {
     @PostMapping
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            System.out.println("ok");
             String fileName = "test/" + file.getOriginalFilename();  // 폴더 경로 포함
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());

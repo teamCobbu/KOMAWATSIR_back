@@ -100,6 +100,7 @@ public class Mapper {
                 .id(dto.getId())
                 .userId(dto.getUserId())
                 .year(dto.getYear())
+                .nickname(dto.getNickname())
                 .build();
     }
 
@@ -108,6 +109,7 @@ public class Mapper {
                 .id(entity.getId())
                 .userId(entity.getUserId())
                 .year(entity.getYear())
+                .nickname(entity.getNickname())
                 .build();
     }
 

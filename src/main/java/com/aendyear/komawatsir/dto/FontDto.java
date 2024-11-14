@@ -1,6 +1,7 @@
 package com.aendyear.komawatsir.dto;
 
 import com.aendyear.komawatsir.type.FontColor;
+import com.aendyear.komawatsir.type.FontSize;
 import lombok.*;
 
 @Getter
@@ -13,7 +14,7 @@ public class FontDto {
 
     private String name;
 
-    private Integer size;
+    private FontSize size;
 
     private String url;
 

@@ -22,5 +22,5 @@ public class PostDto {
 
     private PostStatus status;
 
-    private Integer year;
+    private String year;
 }

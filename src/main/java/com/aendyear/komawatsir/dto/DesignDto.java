@@ -18,5 +18,5 @@ public class DesignDto {
 
     private Integer fontId;
 
-    private Integer year;
+    private String year;
 }

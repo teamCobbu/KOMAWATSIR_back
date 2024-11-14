@@ -31,7 +31,7 @@ public class Post {
     @Column(length = 20)
     private PostStatus status;
 
-    private Integer year;
+    private String year;
 
 
 }

@@ -26,5 +26,5 @@ public class Design {
     @Column(name = "font_id")
     private Integer fontId;
 
-    private Integer year;
+    private String year;
 }

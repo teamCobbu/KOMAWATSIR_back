@@ -44,16 +44,13 @@ public class InquiryService {
     @Transactional
     public Inquiry postQuestion(Integer userId, String nickname) {
         Inquiry inquiry = new Inquiry();
-        try {
-            // 초기 닉네임 등록과 동시에 inquiry 데이터 생성
-            inquiry.setUserId(userId);
-            inquiry.setYear(nextYear);
-            inquiry.setNickname(nickname);
 
-            inquiry = inquiryRepository.save(inquiry);
-        } catch (Exception e) {
-            System.out.println("postQuestion : " + e.getMessage());
-        }
+        inquiry.setUserId(userId);
+        inquiry.setYear(nextYear);
+        inquiry.setNickname(nickname);
+
+        inquiry = inquiryRepository.save(inquiry);
+
         return inquiry;
     }
 
@@ -61,40 +58,29 @@ public class InquiryService {
     @Transactional
     public InquiryItem postInsertQuestion(Integer userId, InquiryItemDto dto) {
         InquiryItem result = new InquiryItem();
-        try {
-            Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
-            if (inquiry.isPresent()) {
-                dto.setInquiryId(inquiry.get().getId());
-                result = inquiryItemRepository.save(Mapper.toEntity(dto));
-            }
-        } catch (Exception e) {
-            System.out.println("postInsertQuestion : " + e.getMessage());
+
+        Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
+        if (inquiry.isPresent()) {
+            dto.setInquiryId(inquiry.get().getId());
+            result = inquiryItemRepository.save(Mapper.toEntity(dto));
         }
+
         return result;
     }
 
     // 질문 수정하기
     @Transactional
     public InquiryItem putUpdateQuestion(InquiryItemDto dto) {
-        InquiryItem result = new InquiryItem();
-        try {
-            result = inquiryItemRepository.save(Mapper.toEntity(dto));
-        } catch (Exception e) {
-            System.out.println("putUpdateQuestion : " + e.getMessage());
-        }
-        return result;
+        return inquiryItemRepository.save(Mapper.toEntity(dto));
     }
 
     // 질문 삭제하기
     @Transactional
     public Integer deleteRemoveQuestion(InquiryItemDto dto) {
-        Integer deleteId = null;
-        try {
-            deleteId = dto.getId();
-            inquiryItemRepository.deleteById(deleteId);
-        } catch (Exception e) {
-            System.out.println("putUpdateQuestion : " + e.getMessage());
-        }
+
+        Integer deleteId = dto.getId();
+        inquiryItemRepository.deleteById(deleteId);
+
         return deleteId;
     }
 }

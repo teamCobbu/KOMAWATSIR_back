@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,15 +25,7 @@ public class DraftService {
     // 초안 추가(등록) 하기
     @Transactional
     public Draft postAddDraft(Integer userId, DraftDto dto) {
-        Draft draft = new Draft();
-
-        try{
-            draft = draftRepository.save(Mapper.toEntity(dto));
-        } catch (Exception e) {
-            System.out.println("postAddDraft ERROR : " + e.getMessage());
-        }
-
-        return draft;
+        return draftRepository.save(Mapper.toEntity(dto));
     }
 
     // 단일 초안 조회하기
@@ -43,7 +34,7 @@ public class DraftService {
 
         Optional<Draft> draft = draftRepository.findById(draftId);
 
-        if(draft.isPresent()) {
+        if (draft.isPresent()) {
             dto = Mapper.toDto(draft.get());
         }
 
@@ -58,16 +49,8 @@ public class DraftService {
     // 초안 삭제하기
     @Transactional
     public Integer deleteDraft(Integer userId, Integer draftId) {
-        Integer deleteId = null;
-
-        try {
-            draftRepository.deleteById(draftId);
-            deleteId = draftId;
-        } catch (Exception e) {
-            System.out.println("deleteDraft ERROR : " + e.getMessage());
-        }
-
-        return deleteId;
+        draftRepository.deleteById(draftId);
+        return draftId;
     }
 
 

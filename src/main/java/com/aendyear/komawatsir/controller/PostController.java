@@ -33,4 +33,10 @@ public class PostController {
 
     // 연하장 상태 수정 (작성 전, 중, 완, 삭제)
 //    @PatchMapping("/posts/{id}/status")
+
+    @GetMapping("/posts/write/gpt")
+    @Operation(summary = "auto create post content", description = "챗 지피티를 사용한 자동 연하장 내용 생성")
+    public ResponseEntity<String> getUseGpt(@RequestParam String prompt) {
+        return ResponseEntity.ok(postService.getUseGpt(prompt));
+    }
 }

@@ -1,20 +1,20 @@
 package com.aendyear.komawatsir.service;
 
 import com.aendyear.komawatsir.dto.PostDesignDto;
-import com.aendyear.komawatsir.entity.Design;
-import com.aendyear.komawatsir.entity.Font;
-import com.aendyear.komawatsir.entity.Image;
-import com.aendyear.komawatsir.entity.Post;
+import com.aendyear.komawatsir.dto.PostDto;
+import com.aendyear.komawatsir.entity.*;
 import com.aendyear.komawatsir.repository.*;
 import com.aendyear.komawatsir.type.PostStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +22,8 @@ import java.util.Optional;
 @Service
 @Validated
 public class PostService {
+    String year = String.valueOf(LocalDate.now().getYear());
+    String nextYear = String.valueOf(LocalDate.now().getYear() + 1);
 
     @Autowired
     private PostRepository postRepository;
@@ -37,6 +39,9 @@ public class PostService {
 
     @Autowired
     private FontRepository fontRepository;
+
+    @Autowired
+    private InquiryRepository inquiryRepository;
 
     @Value("${openai.api-key}")
     private String openaiApiKey;
@@ -120,4 +125,50 @@ public class PostService {
         return null;
     }
 
+    // 연하장 임시 저장 혹은 저장 (수정 겸용)
+    @Transactional
+    public Post postAddPost(String status, PostDto dto) {
+        Post post = Mapper.toEntity(dto);
+
+        // 신청받는 설문에 등록한 닉네임 가져오기
+        String inquiryNickname;
+        Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(dto.getSenderId(), nextYear);
+        if (inquiry.isPresent()) {
+            inquiryNickname = inquiry.get().getNickname();
+            post.setSenderNickname(inquiryNickname);
+        }
+        post.setYear(nextYear);
+
+
+        if (status.equals("progressing")) {
+            post.setStatus(PostStatus.PROGRESSING);
+        } else if (status.equals("completed")) {
+            post.setStatus(PostStatus.COMPLETED);
+        }
+
+        return postRepository.save(post);
+    }
+
+    // 연하장 단일 조회
+    public PostDto getSinglePost(Integer postId) {
+        PostDto postDto = new PostDto();
+
+        Optional<Post> post = postRepository.findById(postId);
+        if (post.isPresent()) {
+            postDto = Mapper.toDto(post.get());
+        }
+
+        return postDto;
+    }
+
+    // 연하장 삭제
+    @Transactional
+    public Integer patchDeletePost(Integer postId) {
+        Optional<Post> post = postRepository.findById(postId);
+        if (post.isPresent()) {
+            post.get().setStatus(PostStatus.DELETED);
+            postRepository.save(post.get());
+        }
+        return postId;
+    }
 }

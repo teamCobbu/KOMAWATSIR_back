@@ -4,9 +4,11 @@ import com.aendyear.komawatsir.dto.PostDesignDto;
 import com.aendyear.komawatsir.dto.PostDto;
 import com.aendyear.komawatsir.entity.Post;
 import com.aendyear.komawatsir.service.PostService;
+import com.aendyear.komawatsir.type.PostStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +21,20 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    // 연하장 생성
-//    @PostMapping("/posts")
+    @PostMapping("/posts/{status}")
+    @Operation(summary = "add post", description = "연하장 임시 저장 혹은 저장")
+    public ResponseEntity<Post> postAddPost(@PathVariable String status, @RequestBody PostDto dto) {
+        if(status.equals("progressing") || status.equals("completed")) {
+            return ResponseEntity.ok(postService.postAddPost(status, dto));
+        }
+        return ResponseEntity.badRequest().build();
+    }
 
-    // 단일 연하장 조회
-//    @GetMapping("/posts/{id}")
+    @GetMapping("/posts/{postId}")
+    @Operation(summary = "show single card", description = "단일 연하장 조회")
+    public ResponseEntity<PostDto> getSinglePost(@PathVariable Integer postId) {
+        return ResponseEntity.ok(postService.getSinglePost(postId)) ;
+    }
 
     @GetMapping("/receivers/{receiverUserId}/posts/{year}")
     @Operation(summary = "show card by receiver", description = "연도별 받은 연하장 조회")
@@ -31,8 +42,11 @@ public class PostController {
         return ResponseEntity.ok(postService.getShowCard(receiverUserId, year));
     }
 
-    // 연하장 상태 수정 (작성 전, 중, 완, 삭제)
-//    @PatchMapping("/posts/{id}/status")
+    @PatchMapping("/posts/{postId}/delete")
+    @Operation(summary = "delete post", description = "연하장 삭제 (상태 변경)")
+    public ResponseEntity<Integer> patchDeletePost(@PathVariable Integer postId) {
+        return ResponseEntity.ok(postService.patchDeletePost(postId));
+    }
 
     @GetMapping("/posts/write/gpt")
     @Operation(summary = "auto create post content", description = "챗 지피티를 사용한 자동 연하장 내용 생성")

@@ -15,7 +15,6 @@ import java.util.Optional;
 @Service
 @Validated
 public class DraftService {
-
     String year = String.valueOf(LocalDate.now().getYear());
     String nextYear = String.valueOf(LocalDate.now().getYear() + 1);
 

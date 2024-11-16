@@ -30,10 +30,4 @@ public class FontController {
     public ResponseEntity<List<FontDto>> getFontList() {
         return ResponseEntity.ok(fontService.getFontList());
     }
-
-    @PutMapping("/{fontId}/{fontSize}/{fontColor}/{userId}")
-    @Operation(summary = "change font", description = "폰트 변경")
-    public ResponseEntity<Design> changeFont(@PathVariable Integer fontId, @PathVariable String fontSize, @PathVariable String fontColor, @PathVariable Integer userId) {
-        return ResponseEntity.ok(fontService.changeFont(fontId, fontSize, fontColor, userId));
-    }
 }

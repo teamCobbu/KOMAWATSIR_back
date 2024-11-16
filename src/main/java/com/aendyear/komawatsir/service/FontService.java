@@ -1,13 +1,9 @@
 package com.aendyear.komawatsir.service;
 
 import com.aendyear.komawatsir.dto.FontDto;
-import com.aendyear.komawatsir.entity.Design;
 import com.aendyear.komawatsir.entity.Font;
 import com.aendyear.komawatsir.repository.DesignRepository;
 import com.aendyear.komawatsir.repository.FontRepository;
-import com.aendyear.komawatsir.type.FontColor;
-import com.aendyear.komawatsir.type.FontSize;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -34,7 +30,7 @@ public class FontService {
         FontDto result = new FontDto();
 
         Optional<Font> font = fontRepository.findById(fontId);
-        if(font.isPresent()) {
+        if (font.isPresent()) {
             result = Mapper.toDto(font.get());
         }
 
@@ -45,27 +41,4 @@ public class FontService {
     public List<FontDto> getFontList() {
         return fontRepository.findAll().stream().map(Mapper::toDto).toList();
     }
-
-    // 폰트 변경하기
-    @Transactional
-    public Design changeFont(Integer fontId, String fontSize, String fontColor, Integer userId) {
-        Design result = new Design();
-
-        FontSize finalFontSize = fontSize.equals("default") ? FontSize.defaultSize : FontSize.bigSize;
-        FontColor finalFontColor = fontColor.equals("white") ? FontColor.white : FontColor.black;
-
-        Optional<Design> design = designRepository.findByUserIdAndYear(userId, nextYear);
-        design.ifPresent(selectDesign -> selectDesign.setFontId(fontId));
-        if(design.isPresent()) {
-            design.get().setFontId(fontId);
-            design.get().setFontSize(finalFontSize);
-            design.get().setFontColor(finalFontColor);
-
-            result = designRepository.save(design.get());
-        }
-
-        return result;
-    }
-
-
 }

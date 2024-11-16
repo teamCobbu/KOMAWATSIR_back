@@ -17,6 +17,8 @@ public class Mapper {
                 .thumbnailId(dto.getThumbnailId())
                 .fontId(dto.getFontId())
                 .year(dto.getYear())
+                .fontColor(dto.getFontColor())
+                .fontSize(dto.getFontSize())
                 .build();
     }
 
@@ -32,6 +34,8 @@ public class Mapper {
                 .thumbnailId(entity.getThumbnailId())
                 .fontId(entity.getFontId())
                 .year(entity.getYear())
+                .fontColor(entity.getFontColor())
+                .fontSize(entity.getFontSize())
                 .build();
     }
 
@@ -57,9 +61,7 @@ public class Mapper {
         return Font.builder()
                 .id(dto.getId())
                 .name(dto.getName())
-                .size(dto.getSize())
                 .url(dto.getUrl())
-                .color(dto.getColor())
                 .build();
     }
 
@@ -67,9 +69,7 @@ public class Mapper {
         return FontDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
-                .size(entity.getSize())
                 .url(entity.getUrl())
-                .color(entity.getColor())
                 .build();
     }
 

@@ -19,15 +19,7 @@ public class Font {
     @Column(length = 50)
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    private FontSize size;
-
     @Column(length = 255)
     private String url;
-
-    @Enumerated(EnumType.STRING)
-    private FontColor color;
-
-
 }
 

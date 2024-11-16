@@ -1,5 +1,7 @@
 package com.aendyear.komawatsir.dto;
 
+import com.aendyear.komawatsir.type.FontColor;
+import com.aendyear.komawatsir.type.FontSize;
 import lombok.*;
 
 @Getter
@@ -19,4 +21,8 @@ public class DesignDto {
     private Integer fontId;
 
     private String year;
+
+    private FontSize fontSize;
+
+    private FontColor fontColor;
 }

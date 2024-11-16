@@ -1,5 +1,7 @@
 package com.aendyear.komawatsir.entity;
 
+import com.aendyear.komawatsir.type.FontColor;
+import com.aendyear.komawatsir.type.FontSize;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,4 +29,11 @@ public class Design {
     private Integer fontId;
 
     private String year;
+
+    @Enumerated(EnumType.STRING)
+    private FontColor fontColor;
+
+    @Enumerated(EnumType.STRING)
+    private FontSize fontSize;
+
 }

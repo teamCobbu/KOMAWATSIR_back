@@ -1,26 +1,39 @@
 package com.aendyear.komawatsir.controller;
 
+import com.aendyear.komawatsir.dto.FontDto;
+import com.aendyear.komawatsir.entity.Design;
+import com.aendyear.komawatsir.entity.Font;
 import com.aendyear.komawatsir.service.FontService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping(name = "/api/fonts")
+@RequestMapping("/api/fonts")
 public class FontController {
 
     @Autowired
     private FontService fontService;
 
-    // 단일 폰트 조회 (url 가져오기)
-//    @GetMapping("/{id}")
+    @GetMapping("/{fontId}")
+    @Operation(summary = "load font url", description = "단일 폰트 조회 (url 가져오기)")
+    public ResponseEntity<FontDto> getFontUrl(@PathVariable Integer fontId) {
+        return ResponseEntity.ok(fontService.getFontUrl(fontId));
+    }
 
-    // 폰트 목록 조회
-//    @GetMapping
+    @GetMapping
+    @Operation(summary = "load font list", description = "폰트 목록 조회")
+    public ResponseEntity<List<FontDto>> getFontList() {
+        return ResponseEntity.ok(fontService.getFontList());
+    }
 
-    // 폰트 변경 (수정)
-//    @PutMapping("/{id}")
+    @PutMapping("/{fontId}/{fontSize}/{fontColor}/{userId}")
+    @Operation(summary = "change font", description = "폰트 변경")
+    public ResponseEntity<Design> changeFont(@PathVariable Integer fontId, @PathVariable String fontSize, @PathVariable String fontColor, @PathVariable Integer userId) {
+        return ResponseEntity.ok(fontService.changeFont(fontId, fontSize, fontColor, userId));
+    }
 }

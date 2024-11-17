@@ -11,15 +11,10 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class UserDto {
-
     private Integer id;
-
     private String name;
-
     @Size(min = 10, max = 11)
     private String tel;
-
     private String kakaoId;
-
-    private Boolean isSmsAllowed;
+    private Boolean isSmsAllowed = Boolean.FALSE;
 }

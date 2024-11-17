@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    User findByKakaoId(String kakaoId);
-
-    Optional<User> findByTel(String tel);
+    Optional<User> findByKakaoId(String kakaoId);
+    Optional<User> findByTel(String tel); //비회원 검색
 }

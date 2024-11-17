@@ -49,4 +49,16 @@ public class InquiryController {
     public ResponseEntity<Integer> deleteRemoveQuestion(@RequestBody InquiryItemDto dto) {
         return ResponseEntity.ok(inquiryService.deleteRemoveQuestion(dto));
     }
+
+    @GetMapping("/get/url")
+    @Operation(summary = "get hmac url", description = "링크 암호화")
+    public ResponseEntity<String> getUrl(@PathVariable Integer userId) {
+        return ResponseEntity.ok(inquiryService.getUrl(userId));
+    }
+
+    @GetMapping("/validate/url")
+    @Operation(summary = "validate url", description = "암호화된 링크 검증")
+    public ResponseEntity<Boolean> validateUrl(@PathVariable Integer userId, @RequestParam String url) {
+        return ResponseEntity.ok(inquiryService.validateUrl(userId, url));
+    }
 }

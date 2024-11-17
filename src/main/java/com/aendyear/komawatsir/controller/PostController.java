@@ -4,12 +4,9 @@ import com.aendyear.komawatsir.dto.PostDesignDto;
 import com.aendyear.komawatsir.dto.PostDto;
 import com.aendyear.komawatsir.entity.Post;
 import com.aendyear.komawatsir.service.PostService;
-import com.aendyear.komawatsir.type.PostStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +21,7 @@ public class PostController {
     @PostMapping("/posts/{status}")
     @Operation(summary = "add post", description = "연하장 임시 저장 혹은 저장")
     public ResponseEntity<Post> postAddPost(@PathVariable String status, @RequestBody PostDto dto) {
-        if(status.equals("progressing") || status.equals("completed")) {
+        if (status.equals("progressing") || status.equals("completed")) {
             return ResponseEntity.ok(postService.postAddPost(status, dto));
         }
         return ResponseEntity.badRequest().build();
@@ -33,7 +30,7 @@ public class PostController {
     @GetMapping("/posts/{postId}")
     @Operation(summary = "show single card", description = "단일 연하장 조회")
     public ResponseEntity<PostDto> getSinglePost(@PathVariable Integer postId) {
-        return ResponseEntity.ok(postService.getSinglePost(postId)) ;
+        return ResponseEntity.ok(postService.getSinglePost(postId));
     }
 
     @GetMapping("/receivers/{receiverUserId}/posts/{year}")

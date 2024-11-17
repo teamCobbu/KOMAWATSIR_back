@@ -81,6 +81,7 @@ public class Mapper {
                 .pic(dto.getPic())
                 .isFront(dto.getIsFront())
                 .sourceType(dto.getSourceType())
+                .userId(dto.getUserId())
                 .build();
     }
 
@@ -92,6 +93,7 @@ public class Mapper {
                 .pic(entity.getPic())
                 .isFront(entity.getIsFront())
                 .sourceType(entity.getSourceType())
+                .userId(entity.getUserId())
                 .build();
     }
 

@@ -29,11 +29,4 @@ public class ImageService {
 
         return result;
     }
-
-    // 카테고리 목록 조회
-    public List<String> getCategoryList() {
-        List<String> result = new ArrayList<>();
-        imageRepository.findAll().stream().map(Image::getCategory).distinct().forEach(result::add);
-        return result;
-    }
 }

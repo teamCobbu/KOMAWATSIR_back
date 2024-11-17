@@ -137,7 +137,6 @@ public class PostService {
         }
         post.setYear(nextYear);
 
-
         if (status.equals("progressing")) {
             post.setStatus(PostStatus.PROGRESSING);
         } else if (status.equals("completed")) {

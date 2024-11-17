@@ -1,6 +1,7 @@
 package com.aendyear.komawatsir.dto;
 
-import com.aendyear.komawatsir.entity.Image;
+import com.aendyear.komawatsir.type.ImageCategory;
+import com.aendyear.komawatsir.type.SourceType;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -14,7 +15,7 @@ public class ImageDto {
     private Integer id;
 
     @NotNull
-    private String category;
+    private ImageCategory category;
 
     @NotNull
     private String name;
@@ -25,9 +26,7 @@ public class ImageDto {
     @NotNull
     private Boolean isFront;
 
-    private Image.SourceType sourceType;
+    private SourceType sourceType;
 
-    public enum SourceType {
-        SERVICE, USER, THIRD_PARTY
-    }
+    private Integer userId;
 }

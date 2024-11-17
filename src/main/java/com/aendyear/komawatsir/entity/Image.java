@@ -1,5 +1,7 @@
 package com.aendyear.komawatsir.entity;
 
+import com.aendyear.komawatsir.type.ImageCategory;
+import com.aendyear.komawatsir.type.SourceType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +17,7 @@ public class Image {
     private Integer id;
 
     @Column(length = 50)
-    private String category;
+    private ImageCategory category;
 
     @Column(length = 100)
     private String name;
@@ -28,8 +30,6 @@ public class Image {
     @Column(length = 20)
     private SourceType sourceType;
 
-    public enum SourceType {
-        SERVICE, USER
-    }
+    private Integer userId;
 }
 

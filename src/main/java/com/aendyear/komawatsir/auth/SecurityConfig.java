@@ -22,7 +22,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)  // CSRF 비활성화
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 비활성화
                 .authorizeHttpRequests(authorize -> authorize

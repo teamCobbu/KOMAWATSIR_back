@@ -1,5 +1,11 @@
 package com.aendyear.komawatsir.auth;
 
+import com.aendyear.komawatsir.dto.UserDto;
+import com.aendyear.komawatsir.entity.User;
+import com.aendyear.komawatsir.repository.UserRepository;
+import com.aendyear.komawatsir.service.Mapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -8,30 +14,54 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-public class KakaoUserService { //Access Token을 사용하여 카카오 사용자 정보를 조회
+public class KakaoUserService { //사용자 정보조회
 
     private static final String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
-
     private final RestTemplate restTemplate;
+    private final UserRepository userRepository;
 
-    // RestTemplate 빈 주입
-    public KakaoUserService(RestTemplate restTemplate) {
+    public KakaoUserService(RestTemplate restTemplate, UserRepository userRepository) {
         this.restTemplate = restTemplate;
+        this.userRepository = userRepository;
     }
 
-    public KakaoUser getKakaoUserInfo(String accessToken) {
-        String url = KAKAO_USER_INFO_URL;
+    public UserDto findByKakaoId(String kakaoId) {
+        // DB에서 KakaoId로 사용자 정보 조회
+        User user = userRepository.findByKakaoId(kakaoId).orElse(null);
+        // User → UserDto 변환
+        return Mapper.toDto(user);
+    }
 
-        // 헤더에 accessToken 추가
+
+    public UserDto getKakaoUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
-
-        // 헤더를 포함한 HTTP 요청 엔티티 생성
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        //카카오 사용자 정보 API 호출
-        ResponseEntity<KakaoUser> response = restTemplate.exchange(url, HttpMethod.GET, entity, KakaoUser.class);
+        ResponseEntity<String> response = restTemplate.exchange(
+                KAKAO_USER_INFO_URL,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
 
-        return response.getBody();
+        String responseBody = response.getBody();
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(responseBody);
+
+            UserDto userDto = new UserDto();
+            userDto.setKakaoId(rootNode.get("id").toString());
+            JsonNode propertiesNode = rootNode.get("properties");
+            userDto.setName(propertiesNode.get("nickname").asText());
+
+            return userDto;
+
+        } catch (Exception e) {
+            System.err.println("Error parsing Kakao API response: " + e.getMessage());
+            throw new RuntimeException("Failed to parse Kakao user info", e);
+        }
     }
 }
+

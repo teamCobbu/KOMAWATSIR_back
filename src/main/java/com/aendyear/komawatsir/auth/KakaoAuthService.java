@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 public class KakaoAuthService {//Access Token을 요청
 
     private static final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
+    private static final String KAKAO_LOGOUT_URL = "https://kapi.kakao.com/v1/user/logout";
 
     private final RestTemplate restTemplate;
 
@@ -43,5 +44,22 @@ public class KakaoAuthService {//Access Token을 요청
         String responseBody = response.getBody();
         // JSON 파싱 로직 추가 (예시로 바로 리턴)
         return responseBody; // 실제로는 Access Token을 추출하여 반환해야 합니다
+    }
+
+    // 카카오 로그아웃 요청
+    public boolean logout(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken); // 사용자의 access token을 헤더에 담아서 요청
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                KAKAO_LOGOUT_URL,
+                HttpMethod.POST,
+                entity,
+                String.class
+        );
+
+        return response.getStatusCode().is2xxSuccessful(); // 로그아웃 성공 여부 반환
     }
 }

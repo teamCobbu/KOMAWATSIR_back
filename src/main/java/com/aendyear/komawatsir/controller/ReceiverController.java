@@ -2,10 +2,8 @@ package com.aendyear.komawatsir.controller;
 
 import com.aendyear.komawatsir.dto.ReceiverDto;
 import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
-import com.aendyear.komawatsir.entity.Receiver;
 import com.aendyear.komawatsir.service.ReceiverService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,7 @@ public class ReceiverController {
     public ResponseEntity<?> postAddReceiver(@PathVariable(name = "userId") Integer senderId, @RequestBody ReceiverDto dto) {
 
         // true 일 경우 이미 신청된 전화번호
-        if(receiverService.duplicationCheck(senderId, dto.getTel())) {
+        if (receiverService.duplicationCheck(senderId, dto.getTel())) {
             return ResponseEntity.badRequest().body("이미 신청된 전화번호입니다.");
         }
 

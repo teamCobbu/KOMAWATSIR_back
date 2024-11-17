@@ -48,7 +48,6 @@ public class InquiryService {
     public List<InquiryItemDto> getQuestionList(Integer userId) {
         List<InquiryItemDto> result = new ArrayList<>();
         Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
-        System.out.println("nextYear : " + nextYear);
         if (inquiry.isPresent()) {
             result = inquiryItemRepository.findByInquiryId(inquiry.get().getUserId()).stream().map(Mapper::toDto).collect(Collectors.toList());
         }
@@ -119,14 +118,17 @@ public class InquiryService {
     public Boolean validateUrl(Integer userId, String url) {
         String userIdHmac = getUrl(userId);
 
-       if (userIdHmac == null || url == null || userIdHmac.length() != url.length()) {
-           return false;
-       }
-
-       int result = 0;
-       for (int i = 0; i < userIdHmac.length(); i++) {
-           result |= userIdHmac.charAt(i) ^ url.charAt(i);
-       }
+        /*
+        equals 메소드는 문자열 길이에 따라 수행 시간이 달라질 수 있으므로 타이밍 공격(실행 시간 차이로 비밀 키 추측)에 취약.
+        타임 인디펜던트 비교(입력 데이터의 길이와 내용에 관계없이 일정한 실행 시간을 유지하여 비교)를 구현함 (아래 코드)
+         */
+        if (userIdHmac == null || url == null || userIdHmac.length() != url.length()) {
+            return false;
+        }
+        int result = 0;
+        for (int i = 0; i < userIdHmac.length(); i++) {
+            result |= userIdHmac.charAt(i) ^ url.charAt(i);
+        }
 
         return result == 0;
     }

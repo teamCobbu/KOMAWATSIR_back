@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class Post {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -32,6 +33,4 @@ public class Post {
     private PostStatus status;
 
     private String year;
-
-
 }

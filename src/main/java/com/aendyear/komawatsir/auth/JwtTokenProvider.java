@@ -1,5 +1,6 @@
 package com.aendyear.komawatsir.auth;
 
+import com.aendyear.komawatsir.dto.UserDto;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,7 +40,7 @@ public class JwtTokenProvider {
     // 토큰 검증 메서드
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            String userId = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
             return true;
         }  catch (ExpiredJwtException e) {// 만료된 토큰 처리
             throw new JwtException("Token expired", e);
@@ -66,10 +67,15 @@ public class JwtTokenProvider {
 
     // 토큰에서 인증 정보 가져오기
     public Authentication getAuthentication(String token) {
+
         String KakaoId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
-        System.out.println("getAuthentication : " +KakaoId );
-        KakaoUser kakaoUser = kakaoUserService.getKakaoUserInfo(token); // 카카오에서 사용자 정보 가져오기
-        System.out.println("getAuthentication : " +kakaoUser );
+
+        UserDto kakaoUser = kakaoUserService.findByKakaoId(KakaoId); // 카카오에서 사용자 정보 가져오기
+        if (kakaoUser == null) {
+            System.out.println("Error: kakaoUser is null");  // 사용자 정보가 없을 경우
+        } else {
+            System.out.println("getAuthentication : " + kakaoUser);  // 사용자 정보 출력
+        }
         UserDetails userDetails = new CustomUserDetails(kakaoUser); // CustomUserDetails는 사용자의 정보를 포함한 클래스
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

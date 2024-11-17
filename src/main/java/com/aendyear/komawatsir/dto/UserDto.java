@@ -9,12 +9,8 @@ import lombok.*;
 @Builder
 public class UserDto {
     private Integer id;
-
     private String name;
-
     private String tel;
-
     private String kakaoId;
-
-    private Boolean isSmsAllowed;
+    private Boolean isSmsAllowed = Boolean.FALSE;
 }

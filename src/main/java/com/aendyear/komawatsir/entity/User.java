@@ -15,14 +15,14 @@ public class User {
     private Integer id;
 
     @Column(nullable = false, length = 50)
-    private String name;
+    private String name;// 카카오에서 닉네임으로 설정
 
     @Column(length = 20)
     private String tel;
 
     @Column(nullable = false, length = 100)
-    private String kakaoId;
+    private String kakaoId;// 카카오 사용자 ID
 
-    @Column(name = "is_sms_allowed")
+    @Column(name = "is_sms_allowed", nullable = false, columnDefinition = "boolean default false")
     private Boolean isSmsAllowed;
 }

@@ -1,5 +1,7 @@
 package com.aendyear.komawatsir.auth;
 
+import com.aendyear.komawatsir.dto.UserDto;
+import com.aendyear.komawatsir.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -8,10 +10,10 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final KakaoUser kakaoUser;
+    private final UserDto userDto;
 
-    public CustomUserDetails(KakaoUser kakaoUser) {
-        this.kakaoUser = kakaoUser;
+    public CustomUserDetails(UserDto userDto) {
+        this.userDto = userDto;
     }
 
     @Override
@@ -27,7 +29,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return kakaoUser.getNickname();  // 사용자 이름대신 닉네임 반환
+        return userDto.getName();  // 사용자 이름대신 닉네임 반환
     }
 
     @Override
@@ -50,7 +52,7 @@ public class CustomUserDetails implements UserDetails {
         return true;  // 활성화됨
     }
 
-    public KakaoUser getKakaoUser() {// 카카오 사용자 정보 반환
-        return kakaoUser;
+    public UserDto getUserDto() {// 카카오 사용자 정보 반환
+        return userDto;
     }
 }

@@ -39,10 +39,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+	implementation 'com.querydsl:querydsl-jpa'
+	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jpa'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.named("compileJava") {
+	options.annotationProcessorPath = configurations.annotationProcessor
 }

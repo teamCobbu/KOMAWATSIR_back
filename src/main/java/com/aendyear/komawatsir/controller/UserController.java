@@ -28,24 +28,6 @@ public class UserController {
     @Value("${kakao.redirect.uri}")
     private String redirectUri;
 
-//    // 카카오 로그인 및 회원가입 (디버깅용 <> @Controller)
-//    @GetMapping("/kakao/loginPage")
-//    public String kakaoLoginPage(Model model) {
-//        model.addAttribute("clientId", clientId);
-//        model.addAttribute("redirectUri", redirectUri);
-//        return "login";
-//    }
-//
-//    @GetMapping("/kakao/login-test")
-//    public ResponseEntity<Object> getKakaoLogin(@RequestParam String code) {
-//        try {
-//            User user = userService.getKakaoLogin(code, clientId, redirectUri);
-//            return ResponseEntity.ok(user);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body("카카오 로그인 처리 중 오류가 발생했습니다.");
-//        }
-//    }
-
     // 카카오 로그인 정보 반환
     @GetMapping("/kakao/loginPage")
     @Operation(summary = "Get Kakao login page info", description = "Returns Kakao client ID and redirect URI")
@@ -79,7 +61,7 @@ public class UserController {
     @PostMapping("/logout")
     @Operation(summary = "Logout user", description = "Logs out the user using Kakao ID and access token")
     public String logout(@RequestParam String kakaoId, @RequestParam String accessToken, HttpServletRequest request, HttpServletResponse response) {
-        boolean result = userService.logout(kakaoId, accessToken, request, response);
+        boolean result = userService.logout(accessToken, request, response);
         if (result) {
             return "Logout successful";
         } else {
@@ -115,9 +97,9 @@ public class UserController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get user by id", description = "회원 정보 조회")
-    public ResponseEntity<Object> getUser(@PathVariable String id) {
+    public ResponseEntity<Object> getUser(@PathVariable Integer id) {
         try {
-            User user = userService.getUser(id);  // kakaoId로 사용자 조회
+            User user = userService.getUser(id);
             if (user == null) {
                 return ResponseEntity.status(404).body(Map.of(
                         "error", "User not found",
@@ -143,7 +125,7 @@ public class UserController {
     // 회원정보 수정
     @PutMapping("/{id}")
     @Operation(summary = "Update user details", description = "회원정보 수정")
-    public ResponseEntity<Object> updateUser(@PathVariable String id, @RequestBody UserDto userDto) {
+    public ResponseEntity<Object> updateUser(@PathVariable Integer id, @RequestBody UserDto userDto) {
         try {
             User updatedUser = userService.updateUser(id, userDto);  // id를 이용해 사용자 업데이트
             return ResponseEntity.ok(Map.of(

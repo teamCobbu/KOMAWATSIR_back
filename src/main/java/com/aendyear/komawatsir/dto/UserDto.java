@@ -16,5 +16,5 @@ public class UserDto {
     @Size(min = 10, max = 11)
     private String tel;
     private String kakaoId;
-    private Boolean isSmsAllowed = Boolean.FALSE;
+    private Boolean isSmsAllowed;
 }

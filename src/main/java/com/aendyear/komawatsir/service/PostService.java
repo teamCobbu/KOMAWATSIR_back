@@ -8,6 +8,7 @@ import com.aendyear.komawatsir.type.PostStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,9 @@ public class PostService {
 
     @Autowired
     private InquiryRepository inquiryRepository;
+
+    @Autowired
+    private OpenAiChatModel openAiChatModel;
 
     @Value("${openai.api-key}")
     private String openaiApiKey;
@@ -91,36 +95,7 @@ public class PostService {
     // gpt 통신으로 연하장 내용 생성하기
     // todo : prompt 에 조건 추가하기 (예: 50글자 이내 등)
     public String getUseGpt(String prompt) {
-        WebClient webClient = WebClient.builder()
-                .baseUrl("https://api.openai.com/v1/chat/completions")
-                .defaultHeader("Authorization", "Bearer " + openaiApiKey)
-                .defaultHeader("Content-Type", "application/json")
-                .build();
-
-        String response = webClient.post()
-                .bodyValue("{\"model\": \"gpt-3.5-turbo\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(response);
-
-            // 반환값 JSON 파싱
-            JsonNode contentNode = rootNode
-                    .path("choices")
-                    .get(0)
-                    .path("message")
-                    .path("content");
-
-            return contentNode.asText();
-
-        } catch (Exception e) {
-            System.out.println("getUseGpt ERROR : " + e.getMessage());
-        }
-
-        return null;
+        return openAiChatModel.call(prompt);
     }
 
     // 연하장 임시 저장 혹은 저장 (수정 겸용)

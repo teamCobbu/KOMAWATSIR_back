@@ -1,11 +1,11 @@
 package com.aendyear.komawatsir.service;
 
+import com.aendyear.komawatsir.auth.JwtTokenProvider;
 import com.aendyear.komawatsir.auth.KakaoAuthService;
 import com.aendyear.komawatsir.auth.KakaoUserService;
 import com.aendyear.komawatsir.dto.UserDto;
 import com.aendyear.komawatsir.entity.User;
 import com.aendyear.komawatsir.repository.UserRepository;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,23 +24,27 @@ public class UserService {
     private final KakaoAuthService kakaoAuthService;
     private final KakaoUserService kakaoUserService;
     private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public UserService(KakaoAuthService kakaoAuthService, KakaoUserService kakaoUserService, UserRepository userRepository) {
+    public UserService(KakaoAuthService kakaoAuthService, KakaoUserService kakaoUserService, UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
         this.kakaoAuthService = kakaoAuthService;
         this.kakaoUserService = kakaoUserService;
         this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     // ****  회원 가입 및 로그인, 로그아웃  *****
     // 카카오 로그인
-    public User getKakaoLogin(String code, String clientId, String redirectUri) {
+    public UserDto getKakaoLogin(String code, String clientId, String redirectUri) {
         String accessToken = parseAccessToken(kakaoAuthService.getAccessToken(code, clientId, redirectUri));
-
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
         }
-        return findOrSaveUser(getUserInfoFromKakao(accessToken));
+        User user = findOrSaveUser(getUserInfoFromKakao(accessToken));
+        String jwtToken = jwtTokenProvider.createToken(user.getKakaoId());
+
+        return new UserDto(user, jwtToken);
     }
 
     // Access Token을 JSON에서 추출
@@ -108,21 +112,39 @@ public class UserService {
 
     // 회원
     // 회원정보 조회
-    public User getUser(Integer id) {
-        return userRepository.findById(id).orElse(null);
+    public UserDto getUser(Integer id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            return UserDto.builder()
+                    .id(user.getId())
+                    .name(user.getName())
+                    .tel(user.getTel())
+                    .kakaoId(user.getKakaoId())
+                    .isSmsAllowed(user.getIsSmsAllowed())
+                    .build();
+        }
+        return null;
     }
 
     // 회원정보 수정
     @Transactional
-    public User updateUser(Integer id, UserDto userDto) {
-        User existingUser = userRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("User not found with Id: " + id)
-        );
+    public UserDto updateUser(Integer id, UserDto userDto) {
+        Optional<User> optionalUser = userRepository.findById(id);
 
+        if (optionalUser.isEmpty()) {
+            // 사용자 없을 경우 404 상태 코드 반환
+            throw new IllegalArgumentException("User not found with Id: " + id);
+        }
+
+        User existingUser = optionalUser.get();
         existingUser.setName(userDto.getName());
         existingUser.setTel(userDto.getTel());
         existingUser.setIsSmsAllowed(userDto.getIsSmsAllowed());
-        return userRepository.save(existingUser);
+
+        User updatedUser = userRepository.save(existingUser);
+
+        // UserDto로 변환하여 반환
+        return new UserDto(updatedUser);
     }
 
     // 회원 탈퇴

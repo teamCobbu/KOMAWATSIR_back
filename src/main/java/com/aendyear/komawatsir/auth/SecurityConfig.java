@@ -26,10 +26,10 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 비활성화
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/**","/api/users/kakao/").permitAll()  // 인증 없이 접근 가능한 경로
+                        .requestMatchers("/**").permitAll()  // 인증 없이 접근 가능한 경로 ,"/api/users/kakao/", "/api/users/logout"
                         .anyRequest().authenticated()); // 나머지 요청은 인증 필요
-            // .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-            //                  UsernamePasswordAuthenticationFilter.class);
+//                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+//                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

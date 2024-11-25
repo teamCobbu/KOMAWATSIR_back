@@ -14,7 +14,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
     private final String secretKey;
-    private final long expirationTime;
+    private final long expirationTime; //24h
     private final KakaoUserService kakaoUserService;  // Kakao 사용자 정보를 가져오는 서비스
 
     public JwtTokenProvider(JwtConfig jwtConfig, KakaoUserService kakaoUserService) {
@@ -40,7 +40,7 @@ public class JwtTokenProvider {
     // 토큰 검증 메서드
     public boolean validateToken(String token) {
         try {
-            String userId = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
             return true;
         }  catch (ExpiredJwtException e) {// 만료된 토큰 처리
             throw new JwtException("Token expired", e);
@@ -56,6 +56,7 @@ public class JwtTokenProvider {
         return Jwts.parser().setSigningKey(secretKey)
                 .parseClaimsJws(token).getBody().getSubject();
     }
+
     // HttpServletRequest에서 토큰 추출
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

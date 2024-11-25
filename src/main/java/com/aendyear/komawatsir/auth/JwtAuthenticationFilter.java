@@ -29,7 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization token is missing");
             return;
         }
-
         if (jwtTokenProvider.validateToken(token)) { // 토큰 검증
             Authentication auth = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth);

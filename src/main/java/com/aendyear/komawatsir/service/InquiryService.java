@@ -54,6 +54,11 @@ public class InquiryService {
         return result;
     }
 
+    // 닉네임 여부 확인하기
+    public boolean getCheckNickname(Integer userId) {
+        return inquiryRepository.findByUserIdAndYear(userId, nextYear).isPresent();
+    }
+
     // 닉네임 등록하기
     @Transactional
     public Inquiry postQuestion(Integer userId, String nickname) {

@@ -26,6 +26,13 @@ public class InquiryController {
         return ResponseEntity.ok(inquiryService.getQuestionList(userId));
     }
 
+    @GetMapping("/nickname/check")
+    @Operation(summary = "check nickname", description = "닉네임 설정 / 설문 생성 여부 확인하기")
+    public ResponseEntity<Boolean> getCheckNickname(@PathVariable Integer userId) {
+        System.out.println(userId);
+        return ResponseEntity.ok(inquiryService.getCheckNickname(userId));
+    }
+
     @PostMapping("/{nickname}")
     @Operation(summary = "add inquiry", description = "닉네임 설정하기")
     public ResponseEntity<Inquiry> postQuestion(@PathVariable Integer userId, @PathVariable String nickname) {

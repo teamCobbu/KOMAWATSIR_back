@@ -90,11 +90,8 @@ public class InquiryService {
 
     // 질문 삭제하기
     @Transactional
-    public Integer deleteRemoveQuestion(InquiryItemDto dto) {
-
-        Integer deleteId = dto.getId();
+    public Integer deleteRemoveQuestion(Integer deleteId) {
         inquiryItemRepository.deleteById(deleteId);
-
         return deleteId;
     }
 

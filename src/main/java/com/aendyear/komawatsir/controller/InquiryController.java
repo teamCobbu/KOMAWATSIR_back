@@ -44,10 +44,10 @@ public class InquiryController {
         return ResponseEntity.ok(inquiryService.putUpdateQuestion(dto));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{deleteId}")
     @Operation(summary = "remove inquiry question", description = "질문 삭제하기")
-    public ResponseEntity<Integer> deleteRemoveQuestion(@RequestBody InquiryItemDto dto) {
-        return ResponseEntity.ok(inquiryService.deleteRemoveQuestion(dto));
+    public ResponseEntity<Integer> deleteRemoveQuestion(@PathVariable Integer deleteId) {
+        return ResponseEntity.ok(inquiryService.deleteRemoveQuestion(deleteId));
     }
 
     @GetMapping("/get/url")

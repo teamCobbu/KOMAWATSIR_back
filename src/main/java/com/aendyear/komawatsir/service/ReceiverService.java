@@ -3,12 +3,11 @@ package com.aendyear.komawatsir.service;
 import com.aendyear.komawatsir.dto.ReceiverDto;
 import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
 import com.aendyear.komawatsir.entity.InquiryItem;
+import com.aendyear.komawatsir.entity.Post;
 import com.aendyear.komawatsir.entity.Receiver;
 import com.aendyear.komawatsir.entity.User;
-import com.aendyear.komawatsir.repository.InquiryItemRepository;
-import com.aendyear.komawatsir.repository.ReceiverQuestionRepository;
-import com.aendyear.komawatsir.repository.ReceiverRepository;
-import com.aendyear.komawatsir.repository.UserRepository;
+import com.aendyear.komawatsir.repository.*;
+import com.aendyear.komawatsir.type.PostStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +36,9 @@ public class ReceiverService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PostRepository postRepository;
 
     // 중복 신청 여부 확인하기
     public Boolean duplicationCheck(Integer senderId, String tel) {
@@ -106,7 +108,15 @@ public class ReceiverService {
     public List<ReceiverDto> getReceiverList(Integer userId) {
         List<ReceiverDto> result = new ArrayList<>();
         result = receiverRepository.findBySenderIdAndYearAndIsDeletedIsFalse(userId, nextYear).stream().map(Mapper::toDto).toList();
-
+        for (ReceiverDto res : result) {
+            Optional<Post> post = postRepository.findByReceiverId(res.getId());
+            if (post.isPresent()) {
+                res.setPostStatus(post.get().getStatus());
+                res.setPostContents(post.get().getContents());
+            } else {
+                res.setPostStatus(PostStatus.PENDING);
+            }
+        }
         return result;
     }
 }

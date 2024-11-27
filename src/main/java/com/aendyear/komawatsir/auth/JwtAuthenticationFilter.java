@@ -11,7 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-//@Component //빈 자동등록때문에 나중에 활성화
+@Component //빈 자동등록때문에 나중에 활성화
 public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토큰을 검증
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -22,20 +22,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        try {
+            String requestURI = request.getRequestURI();
 
-        String token = jwtTokenProvider.resolveToken(request);
+            // 인증 건너뛰기
+            if (requestURI.equals("/api/users/kakao/login-test")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-        if (token == null) { // 토큰이 없는 경우 (401)
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization token is missing");
-            return;
+            // 토큰 추출 및 검증
+            String token = jwtTokenProvider.resolveToken(request);
+
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                Authentication auth = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
-        if (jwtTokenProvider.validateToken(token)) { // 토큰 검증
-            Authentication auth = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(auth);
-        } else { //검증 실패한 경우
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired JWT token");
-            return;
-        }
-        filterChain.doFilter(request, response);
     }
 }

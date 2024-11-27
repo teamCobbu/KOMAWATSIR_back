@@ -8,11 +8,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {//JWT 토큰을 생성하고 검증
-
     private final JwtTokenProvider jwtTokenProvider;
 
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
@@ -26,11 +27,25 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 비활성화
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/**").permitAll()  // 인증 없이 접근 가능한 경로 ,"/api/users/kakao/", "/api/users/logout"
-                        .anyRequest().authenticated()); // 나머지 요청은 인증 필요
-//                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-//                         UsernamePasswordAuthenticationFilter.class);
+                        .requestMatchers("/api/users/kakao/loginPage", "/api/users/kakao/login-test").permitAll()
+                        .requestMatchers("/api/users/logout").permitAll()
+                        .anyRequest().authenticated())
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.addAllowedOrigin("http://localhost:3000");  // React 앱 URL 허용
+        corsConfig.addAllowedMethod("*");  // 모든 HTTP 메서드 허용
+        corsConfig.addAllowedHeader("*");  // 모든 HTTP 헤더 허용
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);  // 모든 경로에 대해 CORS 설정
+
+        return source;
     }
 }

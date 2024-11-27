@@ -42,11 +42,11 @@ public class JwtTokenProvider {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
             return true;
-        }  catch (ExpiredJwtException e) {// 만료된 토큰 처리
+        } catch (ExpiredJwtException e) {
             throw new JwtException("Token expired", e);
-        } catch (MalformedJwtException e) {// 잘못된 형식의 토큰 처리
+        } catch (MalformedJwtException e) {
             throw new JwtException("Malformed token", e);
-        } catch (JwtException | IllegalArgumentException e) {// 기타 예외 처리
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
@@ -59,23 +59,23 @@ public class JwtTokenProvider {
 
     // HttpServletRequest에서 토큰 추출
     public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); // "Bearer " 부분 제거
+        try {
+            String bearerToken = request.getHeader("Authorization");
+            if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+                return bearerToken.substring(7);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to resolve token", e);  // 예외 메시지에 추가 정보를 포함
         }
-        return null;
     }
 
-    // 토큰에서 인증 정보 가져오기
     public Authentication getAuthentication(String token) {
-
-        String KakaoId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
-
-        UserDto kakaoUser = kakaoUserService.findByKakaoId(KakaoId); // 카카오에서 사용자 정보 가져오기
+        String kakaoId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
+        UserDto kakaoUser = kakaoUserService.findByKakaoId(kakaoId); // 카카오에서 사용자 정보 가져오기
         if (kakaoUser == null) {
-            System.out.println("Error: kakaoUser is null");  // 사용자 정보가 없을 경우
-        } else {
-            System.out.println("getAuthentication : " + kakaoUser);  // 사용자 정보 출력
+            throw new RuntimeException("User not found for Kakao ID: " + kakaoId); // 예외 발생
         }
         UserDetails userDetails = new CustomUserDetails(kakaoUser); // CustomUserDetails는 사용자의 정보를 포함한 클래스
 

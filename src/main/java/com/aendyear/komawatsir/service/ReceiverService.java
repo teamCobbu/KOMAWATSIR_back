@@ -104,6 +104,19 @@ public class ReceiverService {
         return result;
     }
 
+    // 메모 수정하기
+    public Receiver putEditMemo(Integer receiverId, String memo) {
+        Receiver result = new Receiver();
+        Optional<Receiver> receiver = receiverRepository.findById(receiverId);
+
+            if (receiver.isPresent()) {
+                receiver.get().setMemo(memo);
+               result = receiverRepository.save(receiver.get());
+            }
+
+        return result;
+    }
+
     // 수신인 목록 조회하기
     public List<ReceiverDto> getReceiverList(Integer userId) {
         List<ReceiverDto> result = new ArrayList<>();

@@ -133,6 +133,17 @@ public class PostService {
         return postDto;
     }
 
+
+    // 연하장 작성 여부 조회
+    public Integer getPostCheck(Integer userId, Integer receiverId) {
+        int result = 0;
+        Optional<Post> post = postRepository.findBySenderIdAndReceiverIdAndYear(userId, receiverId, nextYear);
+        if (post.isPresent()) {
+            result = post.get().getId();
+        }
+        return result;
+    }
+
     // 연하장 삭제
     @Transactional
     public Integer patchDeletePost(Integer postId) {

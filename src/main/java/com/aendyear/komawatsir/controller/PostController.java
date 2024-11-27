@@ -33,6 +33,12 @@ public class PostController {
         return ResponseEntity.ok(postService.getSinglePost(postId));
     }
 
+    @GetMapping("/posts/check/{userId}/{receiverId}")
+    @Operation(summary = "show single card", description = "연하장 작성 여부 조회")
+    public ResponseEntity<Integer> getPostCheck(@PathVariable Integer userId, @PathVariable Integer receiverId) {
+        return ResponseEntity.ok(postService.getPostCheck(userId, receiverId));
+    }
+
     @GetMapping("/receivers/{receiverUserId}/posts/{year}")
     @Operation(summary = "show card by receiver", description = "연도별 받은 연하장 조회")
     public ResponseEntity<List<PostDesignDto>> getShowCard(@PathVariable Integer receiverUserId, @PathVariable String year) {

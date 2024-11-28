@@ -26,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
             String requestURI = request.getRequestURI();
 
             // 인증 건너뛰기
-            if (requestURI.equals("/api/users/kakao/login-test")) {
+            if (requestURI.equals("/api/users/kakao/login-test")||requestURI.equals("/**")) {
                 filterChain.doFilter(request, response);
                 return;
             }

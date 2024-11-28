@@ -29,6 +29,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/users/kakao/loginPage", "/api/users/kakao/login-test").permitAll()
                         .requestMatchers("/api/users/logout").permitAll()
+                        .requestMatchers("/**").permitAll() //전체
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                          UsernamePasswordAuthenticationFilter.class);

@@ -95,7 +95,8 @@ public class PostService {
     // gpt 통신으로 연하장 내용 생성하기
     // todo : prompt 에 조건 추가하기 (예: 50글자 이내 등)
     public String getUseGpt(String prompt) {
-        return openAiChatModel.call(prompt);
+        String request = prompt + " " + nextYear + "년 연하장, 한글로, 100글자";
+        return openAiChatModel.call(request);
     }
 
     // 연하장 임시 저장 혹은 저장 (수정 겸용)

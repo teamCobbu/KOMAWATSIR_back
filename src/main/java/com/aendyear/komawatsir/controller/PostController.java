@@ -21,6 +21,7 @@ public class PostController {
     @PostMapping("/posts/{status}")
     @Operation(summary = "add post", description = "연하장 임시 저장 혹은 저장")
     public ResponseEntity<Post> postAddPost(@PathVariable String status, @RequestBody PostDto dto) {
+
         if (status.equals("progressing") || status.equals("completed")) {
             return ResponseEntity.ok(postService.postAddPost(status, dto));
         }
@@ -54,7 +55,7 @@ public class PostController {
     @GetMapping("/posts/write/gpt")
     @Operation(summary = "auto create post content", description = "챗 지피티를 사용한 자동 연하장 내용 생성")
     public ResponseEntity<String> getUseGpt(@RequestParam String prompt) {
-        System.out.println("hi");
+//        System.out.println("hi");
         return ResponseEntity.ok(postService.getUseGpt(prompt));
     }
 }

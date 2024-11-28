@@ -17,7 +17,7 @@ public class PostDto {
     @NotNull
     private Integer senderId;
 
-    @NotNull
+
     private String senderNickname;
 
     private Integer receiverId;

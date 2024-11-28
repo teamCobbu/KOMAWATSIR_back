@@ -1,7 +1,10 @@
 package com.aendyear.komawatsir.controller;
 
+import com.aendyear.komawatsir.dto.PostDto;
 import com.aendyear.komawatsir.dto.ReceiverDto;
 import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
+import com.aendyear.komawatsir.entity.Post;
+import com.aendyear.komawatsir.entity.Receiver;
 import com.aendyear.komawatsir.service.ReceiverService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users/{userId}/receivers")
@@ -27,6 +31,13 @@ public class ReceiverController {
         }
 
         return ResponseEntity.ok(receiverService.postAddReceiver(senderId, dto));
+    }
+
+    @PutMapping("/{receiverId}")
+    @Operation(summary = "edit memo", description = "메모 수정하기")
+    public ResponseEntity<Receiver> putEditMemo(@PathVariable Integer receiverId, @RequestBody Map<String,String> memo) {
+        return ResponseEntity.ok(receiverService.putEditMemo(receiverId, memo.get("memo")));
+
     }
 
     @GetMapping("/{receiverId}")

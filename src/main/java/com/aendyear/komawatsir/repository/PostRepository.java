@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Post> findByReceiverIdAndYearAndStatusNot(Integer receiverId, String year, PostStatus status);
     Optional<Post> findByReceiverId(Integer receiverId);
+    Optional<Post> findBySenderIdAndReceiverIdAndYear(Integer userId, Integer receiverId, String year);
 }

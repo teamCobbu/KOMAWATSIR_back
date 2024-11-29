@@ -55,7 +55,12 @@ public class PostController {
     @GetMapping("/posts/write/gpt")
     @Operation(summary = "auto create post content", description = "챗 지피티를 사용한 자동 연하장 내용 생성")
     public ResponseEntity<String> getUseGpt(@RequestParam String prompt) {
-//        System.out.println("hi");
         return ResponseEntity.ok(postService.getUseGpt(prompt));
+    }
+
+    @GetMapping("/posts/design/{userId}")
+    @Operation(summary = "load post design", description = "포스트 디자인 가져오기")
+    public ResponseEntity<PostDesignDto> getPostDesign(@PathVariable Integer userId) {
+        return ResponseEntity.ok(postService.getPostDesign(userId));
     }
 }

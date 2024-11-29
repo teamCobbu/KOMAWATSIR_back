@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface DesignRepository extends JpaRepository<Design, Integer> {
 
     Optional<Design> findByUserIdAndYear(Integer userId, String year);
+
 }

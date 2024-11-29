@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 @Service
 @Validated
@@ -154,5 +155,35 @@ public class PostService {
             postRepository.save(post.get());
         }
         return postId;
+    }
+
+    public PostDesignDto getPostDesign(Integer userId) {
+        PostDesignDto postDesignDto = new PostDesignDto();
+
+           Optional<Design> design =  designRepository.findByUserIdAndYear(userId, nextYear);
+           if(design.isPresent()) {
+              Optional<Image> image = imageRepository.findById(design.get().getBackgroundId());
+              image.ifPresent(value -> {
+                  postDesignDto.setBackgroundPic(value.getPic());
+                  postDesignDto.setBackgroundId(value.getId());
+              });
+              image = imageRepository.findById(design.get().getThumbnailId());
+              image.ifPresent(value -> {
+                  postDesignDto.setThumbnailPic(value.getPic());
+                  postDesignDto.setThumbnailId(value.getId());
+              });
+
+              postDesignDto.setDesignId(design.get().getId());
+              postDesignDto.setFontSize(design.get().getFontSize());
+              postDesignDto.setFontColor(design.get().getFontColor());
+
+              Optional<Font> font = fontRepository.findById(design.get().getFontId());
+              font.ifPresent(value -> {
+                  postDesignDto.setFontUrl(value.getUrl());
+                  postDesignDto.setFontName(value.getName());
+              });
+
+           }
+        return postDesignDto;
     }
 }

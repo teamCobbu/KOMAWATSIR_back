@@ -20,6 +20,7 @@ public class PostDesignDto {
     private String thumbnailPic, backgroundPic;
 
     // font (폰트 크기, url, 색)
+    private Integer fontId;
     private FontSize fontSize;
     private FontColor fontColor;
     private String fontUrl;

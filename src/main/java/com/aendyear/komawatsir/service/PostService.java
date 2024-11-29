@@ -180,6 +180,7 @@ public class PostService {
               Optional<Font> font = fontRepository.findById(design.get().getFontId());
               font.ifPresent(value -> {
                   postDesignDto.setFontUrl(value.getUrl());
+                  postDesignDto.setFontId(value.getId());
                   postDesignDto.setFontName(value.getName());
               });
 

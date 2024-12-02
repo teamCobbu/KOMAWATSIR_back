@@ -27,8 +27,6 @@ public class UserController {
     private String clientId;
     @Value("${kakao.redirect.uri}")
     private String redirectUri;
-    @Autowired
-    private KakaoAuthService kakaoAuthService;
 
     // 카카오 로그인 정보 반환
     @GetMapping("/kakao/loginPage")
@@ -75,7 +73,6 @@ public class UserController {
             if (kakaoId == null || name == null || kakaoId.trim().isEmpty()|| name.trim().isEmpty()) {
                 return ResponseEntity.status(400).body(null);
             }
-
             UserDto userDto = userService.signUpWithKakao(kakaoId, name, tel);
 
             return ResponseEntity.ok(userDto);
@@ -100,7 +97,6 @@ public class UserController {
     @Operation(summary = "Update user details", description = "회원정보 수정")
     public ResponseEntity<UserDto> updateUser(@PathVariable Integer id, @RequestBody UserDto userDto) {
         UserDto updatedUser =  userService.updateUser(id, userDto);
-
         return ResponseEntity.ok(updatedUser);
     }
 

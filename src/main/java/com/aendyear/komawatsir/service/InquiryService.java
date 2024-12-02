@@ -49,7 +49,7 @@ public class InquiryService {
         List<InquiryItemDto> result = new ArrayList<>();
         Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
         if (inquiry.isPresent()) {
-            result = inquiryItemRepository.findByInquiryId(inquiry.get().getUserId()).stream().map(Mapper::toDto).collect(Collectors.toList());
+            result = inquiryItemRepository.findByInquiryId(inquiry.get().getId()).stream().map(Mapper::toDto).collect(Collectors.toList());
         }
         return result;
     }

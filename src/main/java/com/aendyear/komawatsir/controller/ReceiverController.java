@@ -33,14 +33,11 @@ public class ReceiverController {
         return ResponseEntity.ok(receiverService.postAddReceiver(senderId, dto));
     }
 
-    @PostMapping("/check")
-    @Operation(summary = "add receiver", description = "수신인 추가하기")
-    public boolean postCheckReceiver(@PathVariable(name = "userId") Integer senderId, @RequestBody ReceiverDto dto) {
+    @GetMapping("/check/tel")
+    @Operation(summary = "check receiver tel duplication", description = "수신인 번호 중복 확인하기")
+    public ResponseEntity<Boolean> postCheckReceiver(@PathVariable(name = "userId") Integer senderId, @RequestParam String tel) {
         // true 일 경우 이미 신청된 전화번호
-        if (receiverService.duplicationCheck(senderId, dto.getTel())) {
-            return true;
-        }
-        return false;
+        return ResponseEntity.ok(receiverService.duplicationCheck(senderId, tel));
     }
 
     @PutMapping("/{receiverId}")

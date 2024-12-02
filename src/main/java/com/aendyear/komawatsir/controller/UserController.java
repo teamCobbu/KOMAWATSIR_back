@@ -1,6 +1,5 @@
 package com.aendyear.komawatsir.controller;
 
-import com.aendyear.komawatsir.auth.JwtTokenProvider;
 import com.aendyear.komawatsir.auth.KakaoAuthService;
 import com.aendyear.komawatsir.auth.SessionService;
 import com.aendyear.komawatsir.dto.UserDto;
@@ -14,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.Map;
 
 @RestController
@@ -59,9 +57,7 @@ public class UserController {
     @Operation(summary = "Logout user", description = "Logs out the user using Kakao ID and access token")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = sessionService.getKakaoAccessTokenFromSession(request);
-
         boolean result = userService.logout(accessToken, request, response);
-
         if (result) {
             return "Logout successful";
         } else {
@@ -76,7 +72,6 @@ public class UserController {
             String kakaoId = payload.get("kakaoId");
             String name = payload.get("name");
             String tel = payload.get("tel");
-
             if (kakaoId == null || name == null || kakaoId.trim().isEmpty()|| name.trim().isEmpty()) {
                 return ResponseEntity.status(400).body(null);
             }
@@ -114,7 +109,6 @@ public class UserController {
     @Operation(summary = "Delete user", description = "회원 탈퇴")
     public ResponseEntity<UserDto> deleteUser(@PathVariable Integer id, HttpServletRequest request) {
         String accessToken = sessionService.getKakaoAccessTokenFromSession(request);
-
         boolean isDeleted = userService.deleteUser(id, accessToken, clientId);
         if (isDeleted) {
             return ResponseEntity.ok().build();  // 200 OK 응답 (탈퇴 성공)

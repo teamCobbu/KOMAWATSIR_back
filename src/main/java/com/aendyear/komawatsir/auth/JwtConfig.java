@@ -9,7 +9,10 @@ public class JwtConfig {
     private String secretKey;
 
     @Value("${jwt.expiration-time}")
-    private long expirationTime; // 만료 시간(1시간)
+    private long expirationTime;
+
+    @Value("${jwt.issuer}")
+    private String issuer;
 
     public String getSecretKey() {
         return secretKey;
@@ -18,5 +21,7 @@ public class JwtConfig {
     public long getExpirationTime() {
         return expirationTime;
     }
+
+    public String getIssuer() { return issuer; }
 }
 

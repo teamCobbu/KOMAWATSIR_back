@@ -97,7 +97,7 @@ public class UserService {
             existingUser.setName(name);
 
             User updatedUser = userRepository.save(existingUser);
-            return Mapper.toDto(updatedUser); // Entity → DTO 변환
+            return Mapper.toDto(updatedUser);
         }
 
         // 새로운 회원 생성
@@ -107,7 +107,7 @@ public class UserService {
                 .tel(tel)
                 .build();
         User savedUser = userRepository.save(newUser);
-        return Mapper.toDto(savedUser); // Entity → DTO 변환
+        return Mapper.toDto(savedUser);
     }
 
     // 회원
@@ -149,22 +149,22 @@ public class UserService {
 
     // 회원 탈퇴
     @Transactional
-    public boolean deleteUser(Integer id) {
-        Optional<User> userOptional = userRepository.findById(id);
+    public boolean deleteUser(Integer id,String accessToken, String clientId) {
+        Optional<User> userOpt = userRepository.findById(id);
+        // 카카오 탈퇴 처리
+        kakaoAuthService.unlinkUser(accessToken);
+        // 유저DB 탈퇴 처리
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-
-            // kakaoId를 null로 설정 (PK는 그대로 남아있음)
+            // kakaoId를 null로 설정 (PK는 그대로)
             user.setKakaoId("");
-            user.setName(""); // 다른 정보도 null로 설정 가능
+            user.setName("");
             user.setTel(null);
-            user.setIsSmsAllowed(false); // 기본값으로 설정
+            user.setIsSmsAllowed(false); // 기본값
             userRepository.save(user); // 변경된 정보를 DB에 저장
-
             return true;
         }
         return false; // 사용자 존재하지 않으면 false 반환
     }
-
 }

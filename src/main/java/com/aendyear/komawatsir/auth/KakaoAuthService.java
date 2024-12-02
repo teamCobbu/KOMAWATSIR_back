@@ -47,6 +47,7 @@ public class KakaoAuthService {//Access Token을 요청
     public boolean logout(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken); // 사용자의 access token을 헤더에 담아서 요청
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 

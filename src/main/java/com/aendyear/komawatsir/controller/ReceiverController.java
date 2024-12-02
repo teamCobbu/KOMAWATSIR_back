@@ -23,7 +23,7 @@ public class ReceiverController {
 
     @PostMapping
     @Operation(summary = "add receiver", description = "수신인 추가하기")
-    public ResponseEntity<?> postAddReceiver(@PathVariable(name = "userId") Integer senderId, @RequestBody ReceiverDto dto) {
+    public ResponseEntity<Object> postAddReceiver(@PathVariable(name = "userId") Integer senderId, @RequestBody ReceiverDto dto) {
 
         // true 일 경우 이미 신청된 전화번호
         if (receiverService.duplicationCheck(senderId, dto.getTel())) {

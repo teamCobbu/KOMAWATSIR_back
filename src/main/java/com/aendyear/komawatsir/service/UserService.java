@@ -56,7 +56,6 @@ public class UserService {
     // Access Token을 JSON에서 추출
     private String parseAccessToken(String kakaoTokenJson) {
         try {
-            System.out.println();
             return new ObjectMapper().readTree(kakaoTokenJson).get("access_token").asText();
         } catch (Exception e) {
             throw new RuntimeException("Error parsing JSON response: " + e.getMessage());

@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.Map;
 
 @RestController
@@ -120,7 +121,9 @@ public class UserController {
         String accessToken = sessionService.getAccessTokenFromSession(request);
         String clientId = sessionService.getClientIdFromSession(request);
 
-        boolean isDeleted = userService.deleteUser(id, accessToken,clientId);
+        System.out.println(accessToken);
+
+        boolean isDeleted = userService.deleteUser(id, accessToken, clientId);
         if (isDeleted) {
             return ResponseEntity.ok().build();  // 200 OK 응답 (탈퇴 성공)
         } else {

@@ -64,9 +64,9 @@ public class KakaoAuthService {//Access Token을 요청
     public boolean unlinkUser(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/x-www-form-urlencoded");
-        headers.set("Authorization", "Bearer " + accessToken);
 //        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>("",headers);
+
         System.out.println("entity + " + entity);
 
         try {

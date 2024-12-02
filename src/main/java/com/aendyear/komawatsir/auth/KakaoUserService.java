@@ -26,12 +26,9 @@ public class KakaoUserService { //사용자 정보조회
     }
 
     public UserDto findByKakaoId(String kakaoId) {
-        // DB에서 KakaoId로 사용자 정보 조회
         User user = userRepository.findByKakaoId(kakaoId).orElse(null);
-        // User → UserDto 변환
         return Mapper.toDto(user);
     }
-
 
     public UserDto getKakaoUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
@@ -59,7 +56,6 @@ public class KakaoUserService { //사용자 정보조회
             return userDto;
 
         } catch (Exception e) {
-            System.err.println("Error parsing Kakao API response: " + e.getMessage());
             throw new RuntimeException("Failed to parse Kakao user info", e);
         }
     }

@@ -1,9 +1,7 @@
 package com.aendyear.komawatsir.auth;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -14,6 +12,7 @@ public class KakaoAuthService {//Access Token을 요청
 
     private static final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
     private static final String KAKAO_LOGOUT_URL = "https://kapi.kakao.com/v1/user/logout";
+    private static final String KAKAO_UNLINK_URL = "https://kapi.kakao.com/v1/user/unlink";
 
     private final RestTemplate restTemplate;
 
@@ -35,14 +34,12 @@ public class KakaoAuthService {//Access Token을 요청
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
-        // 카카오 토큰 요청
         ResponseEntity<String> response = restTemplate.exchange(
                 KAKAO_TOKEN_URL, HttpMethod.POST, requestEntity, String.class
         );
 
         // 응답에서 Access Token 파싱
         String responseBody = response.getBody();
-        // JSON 파싱 로직 추가 (예시로 바로 리턴)
         return responseBody; // 실제로는 Access Token을 추출하여 반환해야 합니다
     }
 
@@ -61,5 +58,35 @@ public class KakaoAuthService {//Access Token을 요청
         );
 
         return response.getStatusCode().is2xxSuccessful(); // 로그아웃 성공 여부 반환
+    }
+
+    //카카오 탈퇴 처리
+    public boolean unlinkUser(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/x-www-form-urlencoded");
+        headers.set("Authorization", "Bearer " + accessToken);
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>("",headers);
+        System.out.println("entity + " + entity);
+
+        try {
+            // RestTemplate의 exchange 메서드 호출
+            ResponseEntity<String> response = restTemplate.exchange(
+                    KAKAO_UNLINK_URL,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return true;
+            } else {
+                System.out.println("Response Status: " + response.getStatusCode());
+                System.out.println("Response Body: " + response.getBody());
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("Error occurred while unlinking: " + e.getMessage());
+            return false;
+        }
     }
 }

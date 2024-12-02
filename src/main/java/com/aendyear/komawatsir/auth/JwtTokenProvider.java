@@ -8,18 +8,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
     private final String secretKey;
-    private final long expirationTime; //24h
+    private final long expirationTime;
+    private final String issuer;
     private final KakaoUserService kakaoUserService;  // Kakao 사용자 정보를 가져오는 서비스
 
     public JwtTokenProvider(JwtConfig jwtConfig, KakaoUserService kakaoUserService) {
         this.secretKey = Base64.getEncoder().encodeToString(jwtConfig.getSecretKey().getBytes());
         this.expirationTime = jwtConfig.getExpirationTime();
+        this.issuer = jwtConfig.getIssuer();
         this.kakaoUserService = kakaoUserService;  // KakaoUserService 주입
     }
 
@@ -33,14 +36,30 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(validity)
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .setIssuer(issuer)
+                .signWith(SignatureAlgorithm.HS256, new SecretKeySpec(secretKey.getBytes(), "HmacSHA256"))
                 .compact();
     }
 
     // 토큰 검증 메서드
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build().parseClaimsJws(token).getBody();
+
+            String subject = claims.getSubject();
+            if(subject == null || subject.isEmpty()){
+                throw new JwtException("subject is empty");
+            }
+
+            String issuer = claims.getIssuer();
+            if (issuer == null || issuer.isEmpty()){
+                throw new JwtException("issuer is empty");
+            }
+
+            Date expiration = claims.getExpiration();
+            if (expiration == null || expiration.before(new Date())){
+                throw new JwtException("token has expired");
+            }
             return true;
         } catch (ExpiredJwtException e) {
             throw new JwtException("Token expired", e);
@@ -53,7 +72,7 @@ public class JwtTokenProvider {
 
     // 토큰에서 사용자 정보 추출
     public String getUserId(String token) {
-        return Jwts.parser().setSigningKey(secretKey)
+        return Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
 

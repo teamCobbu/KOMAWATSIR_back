@@ -42,6 +42,9 @@ public class KakaoUserService { //사용자 정보조회
                 String.class
         );
 
+        System.out.println("Response Status: " + response.getStatusCode());
+        System.out.println("Response Body: " + response.getBody());
+
         String responseBody = response.getBody();
 
         try {

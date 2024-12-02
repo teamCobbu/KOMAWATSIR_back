@@ -36,20 +36,27 @@ public class UserService {
 
     // ****  회원 가입 및 로그인, 로그아웃  *****
     // 카카오 로그인
-    public UserDto getKakaoLogin(String code, String clientId, String redirectUri) {
+    public UserDto getKakaoLogin(String code, String clientId, String redirectUri, HttpServletRequest request) {
         String accessToken = parseAccessToken(kakaoAuthService.getAccessToken(code, clientId, redirectUri));
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
         }
         User user = findOrSaveUser(getUserInfoFromKakao(accessToken));
-        String jwtToken = jwtTokenProvider.createToken(user.getKakaoId());
 
-        return new UserDto(user, jwtToken);
+        UserDto userDto = new UserDto(user);
+
+        String jwtToken = jwtTokenProvider.createToken(user.getKakaoId());
+        request.getSession().setAttribute("jwt_token", jwtToken);
+
+        request.getSession().setAttribute("kakao_access_token", accessToken);
+
+        return userDto;
     }
 
     // Access Token을 JSON에서 추출
     private String parseAccessToken(String kakaoTokenJson) {
         try {
+            System.out.println();
             return new ObjectMapper().readTree(kakaoTokenJson).get("access_token").asText();
         } catch (Exception e) {
             throw new RuntimeException("Error parsing JSON response: " + e.getMessage());

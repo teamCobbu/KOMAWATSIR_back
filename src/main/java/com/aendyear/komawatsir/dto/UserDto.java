@@ -19,8 +19,6 @@ public class UserDto {
     private String kakaoId;
     private Boolean isSmsAllowed;
 
-    private String accessToken;
-
     public UserDto(User user) {
         this.id = user.getId();
         this.name = user.getName();
@@ -28,10 +26,10 @@ public class UserDto {
         this.isSmsAllowed = user.getIsSmsAllowed();
     }
 
-    public UserDto(User user, String jwtToken) {
+    public UserDto(User user, String accessToken) {
         this.id = user.getId();
         this.name = user.getName();
         this.kakaoId = user.getKakaoId();
-        this.accessToken = jwtToken;
+        this.isSmsAllowed = user.getIsSmsAllowed();
     }
 }

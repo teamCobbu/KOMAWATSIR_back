@@ -47,13 +47,8 @@ public class UserController {
     @Operation(summary = "Handle Kakao login", description = "Processes Kakao login using authorization code")
     public ResponseEntity<UserDto> getKakaoLogin(@RequestParam String code, HttpServletRequest request) {
         try {
-            UserDto userDto = userService.getKakaoLogin(code, clientId, redirectUri);
-            String accessToken = userDto.getAccessToken();
-
-            if (accessToken != null) {
-                request.getSession().setAttribute("access_token", accessToken);
-            }
-
+            UserDto userDto = userService.getKakaoLogin(code, clientId, redirectUri, request);
+//        System.out.println("sessionService.getKakaoAccessTokenFromSession : " + sessionService.getKakaoAccessTokenFromSession(request));
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
@@ -64,7 +59,8 @@ public class UserController {
     @PostMapping("/logout")
     @Operation(summary = "Logout user", description = "Logs out the user using Kakao ID and access token")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = sessionService.getAccessTokenFromSession(request);
+        String accessToken = sessionService.getKakaoAccessTokenFromSession(request);
+
         boolean result = userService.logout(accessToken, request, response);
 
         if (result) {
@@ -118,8 +114,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete user", description = "회원 탈퇴")
     public ResponseEntity<UserDto> deleteUser(@PathVariable Integer id, HttpServletRequest request) {
-        String accessToken = sessionService.getAccessTokenFromSession(request);
-        String clientId = sessionService.getClientIdFromSession(request);
+        String accessToken = sessionService.getKakaoAccessTokenFromSession(request);
 
         System.out.println(accessToken);
 

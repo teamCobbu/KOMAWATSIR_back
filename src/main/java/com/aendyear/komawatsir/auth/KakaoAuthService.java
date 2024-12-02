@@ -63,11 +63,9 @@ public class KakaoAuthService {//Access Token을 요청
     //카카오 탈퇴 처리
     public boolean unlinkUser(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/x-www-form-urlencoded");
-//        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>("",headers);
-
-        System.out.println("entity + " + entity);
 
         try {
             // RestTemplate의 exchange 메서드 호출

@@ -7,7 +7,6 @@ import com.aendyear.komawatsir.service.InquiryService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,14 +21,12 @@ public class InquiryController {
     @GetMapping
     @Operation(summary = "inquiry question list", description = "질문 목록 불러오기")
     public ResponseEntity<List<InquiryItemDto>> getQuestionList(@PathVariable Integer userId) {
-        System.out.println(userId);
         return ResponseEntity.ok(inquiryService.getQuestionList(userId));
     }
 
     @GetMapping("/nickname/check")
     @Operation(summary = "check nickname", description = "닉네임 설정 / 설문 생성 여부 확인하기")
     public ResponseEntity<Boolean> getCheckNickname(@PathVariable Integer userId) {
-        System.out.println(userId);
         return ResponseEntity.ok(inquiryService.getCheckNickname(userId));
     }
 

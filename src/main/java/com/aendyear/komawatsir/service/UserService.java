@@ -111,6 +111,7 @@ public class UserService {
                 .kakaoId(kakaoId)
                 .name(name)
                 .tel(tel)
+                .isSmsAllowed(false)
                 .build();
         User savedUser = userRepository.save(newUser);
         return Mapper.toDto(savedUser);

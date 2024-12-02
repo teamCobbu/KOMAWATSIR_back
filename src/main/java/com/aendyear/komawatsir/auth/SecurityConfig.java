@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -29,6 +28,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/users/kakao/loginPage", "/api/users/kakao/login-test").permitAll()
                         .requestMatchers("/api/users/logout").permitAll()
+                        .requestMatchers("/api/inquiry/{userId}/validate/url").permitAll()
                         .requestMatchers("/**").permitAll() //전체
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),

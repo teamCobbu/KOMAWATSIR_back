@@ -24,9 +24,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
             throws ServletException, IOException {
         try {
             String requestURI = request.getRequestURI();
+            String httpMethod = request.getMethod();
 
             // 인증 건너뛰기
-            if (requestURI.equals("/api/users/kakao/login-test")||requestURI.equals("/**")) {
+            if (requestURI.equals("/api/users/kakao/login-test")
+                    ||requestURI.equals("/api/users/kakao/loginPage")
+                    ||requestURI.equals("/api/users/kakao/logout")
+                    ||(httpMethod.equals("POST") && requestURI.matches("^/api/users/\\d+/receivers$"))
+                    ||(httpMethod.equals("GET")) &&requestURI.equals("/api/inquiry/{userId}/validate/url")
+                    ||requestURI.equals("/**")
+            ) {
                 filterChain.doFilter(request, response);
                 return;
             }

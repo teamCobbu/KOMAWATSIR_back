@@ -126,18 +126,7 @@ public class ReceiverService {
     }
 
     // 수신인 목록 조회하기
-    public List<ReceiverDto> getReceiverList(Integer userId) {
-        List<ReceiverDto> result = new ArrayList<>();
-        result = receiverRepository.findBySenderIdAndYearAndIsDeletedIsFalse(userId, nextYear).stream().map(Mapper::toDto).toList();
-        for (ReceiverDto res : result) {
-            Optional<Post> post = postRepository.findByReceiverId(res.getId());
-            if (post.isPresent()) {
-                res.setPostStatus(post.get().getStatus());
-                res.setPostContents(post.get().getContents());
-            } else {
-                res.setPostStatus(PostStatus.PENDING);
-            }
-        }
-        return result;
+    public List<ReceiverDto> getReceiverList(Integer userId, boolean pending, boolean progressing, boolean completed) {
+        return receiverRepository.findBySenderIdAndYearAndIsDeletedIsFalse(userId, nextYear, pending, progressing, completed);
     }
 }

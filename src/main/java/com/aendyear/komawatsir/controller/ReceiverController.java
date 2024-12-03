@@ -7,6 +7,7 @@ import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
 import com.aendyear.komawatsir.entity.Post;
 import com.aendyear.komawatsir.entity.Receiver;
 import com.aendyear.komawatsir.service.ReceiverService;
+import com.aendyear.komawatsir.type.PostStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +59,7 @@ public class ReceiverController {
     // todo : 카테고리별
     @GetMapping
     @Operation(summary = "receiver list", description = "수신인 목록 조회하기")
-    public ResponseEntity<List<ReceiverDto>> getReceiverList(@PathVariable Integer userId) {
-        return ResponseEntity.ok(receiverService.getReceiverList(userId));
+    public ResponseEntity<List<ReceiverDto>> getReceiverList(@PathVariable Integer userId, @RequestParam boolean pending, @RequestParam boolean progressing, @RequestParam boolean completed) {
+        return ResponseEntity.ok(receiverService.getReceiverList(userId, pending, progressing, completed));
     }
 }

@@ -1,6 +1,7 @@
 package com.aendyear.komawatsir.controller;
 
 import com.aendyear.komawatsir.dto.PostDto;
+import com.aendyear.komawatsir.dto.ReceiverAdderDto;
 import com.aendyear.komawatsir.dto.ReceiverDto;
 import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
 import com.aendyear.komawatsir.entity.Post;
@@ -23,10 +24,10 @@ public class ReceiverController {
 
     @PostMapping
     @Operation(summary = "add receiver", description = "수신인 추가하기")
-    public ResponseEntity<Object> postAddReceiver(@PathVariable(name = "userId") Integer senderId, @RequestBody ReceiverDto dto) {
+    public ResponseEntity<Object> postAddReceiver(@PathVariable(name = "userId") Integer senderId, @RequestBody ReceiverAdderDto dto) {
 
         // true 일 경우 이미 신청된 전화번호
-        if (receiverService.duplicationCheck(senderId, dto.getTel())) {
+        if (receiverService.duplicationCheck(senderId, dto.getReceiver().getTel())) {
             return ResponseEntity.badRequest().body("이미 신청된 전화번호입니다.");
         }
 

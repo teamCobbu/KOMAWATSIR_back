@@ -63,7 +63,7 @@ public class DesignService {
     public Design changeFont(Integer fontId, String fontSize, String fontColor, Integer userId) {
         Design result = new Design();
 
-        FontSize finalFontSize = fontSize.equals("default") ? FontSize.defaultSize : FontSize.bigSize;
+        FontSize finalFontSize = fontSize.equals("defaultSize") ? FontSize.defaultSize : FontSize.bigSize;
         FontColor finalFontColor = fontColor.equals("white") ? FontColor.white : FontColor.black;
 
         Optional<Design> design = designRepository.findByUserIdAndYear(userId, nextYear);

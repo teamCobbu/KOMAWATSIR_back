@@ -2,14 +2,15 @@ package com.aendyear.komawatsir.service;
 
 import com.aendyear.komawatsir.dto.ImageDto;
 import com.aendyear.komawatsir.entity.Image;
+import com.aendyear.komawatsir.entity.QImage;
 import com.aendyear.komawatsir.repository.ImageRepository;
 import com.aendyear.komawatsir.type.ImageCategory;
 import com.aendyear.komawatsir.type.SourceType;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +34,12 @@ public class ImageService {
     }
 
     public List<ImageDto> getAllImage(ImageCategory category, Integer userId, boolean isFront) {
-        System.out.println(SourceType.SERVICE + " " + category + " " +  isFront + " " +  userId);
-        return imageRepository.findBySourceTypeAndCategoryAndIsFrontOrUserId(SourceType.SERVICE, category, isFront, userId).stream().map(Mapper::toDto).toList();
+
+        return imageRepository.findByCategoryAndEtc(category, SourceType.SERVICE, isFront, userId)
+                .stream()
+                .map(Mapper::toDto)
+                .toList();
     }
+
+
 }

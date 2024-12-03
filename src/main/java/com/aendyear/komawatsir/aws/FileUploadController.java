@@ -51,13 +51,14 @@ public class FileUploadController {
 
             String customNo = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
 
-            Image.builder()
+
+            imageRepository.save(Image.builder()
                     .category(ImageCategory.CUSTOM)
                     .name(userId + "_" + customNo)
                     .pic(fileUrl)
                     .sourceType(SourceType.USER)
                     .userId(userId)
-                    .build();
+                    .build());
 
             return ResponseEntity.ok(fileUrl);
         } catch (IOException e) {

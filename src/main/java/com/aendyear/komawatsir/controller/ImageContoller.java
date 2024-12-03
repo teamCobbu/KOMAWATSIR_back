@@ -33,7 +33,6 @@ public class ImageContoller {
     @Operation(summary = "load all image by category", description = "카테고리별 이미지 조회")
     public ResponseEntity<List<ImageDto>> getAllImage(@PathVariable String type, @PathVariable Integer userId, @PathVariable boolean isFront) {
         ImageCategory category = type.equals("solid") ? ImageCategory.SOLID : type.equals("gradient")? ImageCategory.GRADATION : type.equals("custom") ? ImageCategory.CUSTOM : ImageCategory.SEASON;
-        System.out.println(category +  " " + isFront);
         return ResponseEntity.ok(imageService.getAllImage(category, userId, isFront));
     }
 

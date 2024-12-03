@@ -78,12 +78,13 @@ public class ReceiverService {
         receiverDto.setYear(nextYear);
         receiverDto.setIsDeleted(false);
         result = receiverRepository.save(Mapper.toEntity(receiverDto));
+        Integer receiverId = result.getId();
 
         // 답변 등록
         List<ReceiverQuestionDto> answers = dto.getAnswers();
 
         for (ReceiverQuestionDto answer : answers) {
-            answer.setReceiverId(receiverUserId);
+            answer.setReceiverId(receiverId);
             ReceiverQuestion receiverQuestion = Mapper.toEntity(answer);
             receiverQuestionRepository.save(receiverQuestion);
         }

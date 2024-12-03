@@ -1,11 +1,10 @@
 package com.aendyear.komawatsir.service;
 
+import com.aendyear.komawatsir.dto.InquiryItemDto;
+import com.aendyear.komawatsir.dto.ReceiverAdderDto;
 import com.aendyear.komawatsir.dto.ReceiverDto;
 import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
-import com.aendyear.komawatsir.entity.InquiryItem;
-import com.aendyear.komawatsir.entity.Post;
-import com.aendyear.komawatsir.entity.Receiver;
-import com.aendyear.komawatsir.entity.User;
+import com.aendyear.komawatsir.entity.*;
 import com.aendyear.komawatsir.repository.*;
 import com.aendyear.komawatsir.type.PostStatus;
 import jakarta.transaction.Transactional;
@@ -40,6 +39,7 @@ public class ReceiverService {
     @Autowired
     private PostRepository postRepository;
 
+
     // 중복 신청 여부 확인하기
     public Boolean duplicationCheck(Integer senderId, String tel) {
         boolean b = false;
@@ -52,34 +52,42 @@ public class ReceiverService {
         return b;
     }
 
-    // 수신인 추가하기
+    InquiryService inquiryService;
+
+    // 수신인 신청: 수신인 추가 & 답변 등록
     @Transactional
-    public Receiver postAddReceiver(Integer senderId, ReceiverDto dto) {
+    public Receiver postAddReceiver(Integer senderId, ReceiverAdderDto dto) {
+        // 수신인 추가
+        ReceiverDto receiverDto = dto.getReceiver();
         Receiver result = new Receiver();
         Integer receiverUserId = null;
 
-        // 비회원 신청
-        if (dto.getReceiverUserId() == null) {
-            Optional<User> user = userRepository.findByTel(dto.getTel());
-
-            // user 에 등록되지 않은 전화번호 -> user 테이블에 전화번호만 추가
-            if (user.isEmpty()) {
-                User userResult = userRepository.save(User.builder().tel(dto.getTel()).build());
+        if (receiverDto.getReceiverUserId() == null) { // 비회원 신청
+            Optional<User> user = userRepository.findByTel(receiverDto.getTel());
+            if (user.isEmpty()) { // user 에 등록되지 않은 전화번호 -> user 테이블에 전화번호만 추가
+                User userResult = userRepository.save(User.builder().tel(receiverDto.getTel()).build());
                 receiverUserId = userResult.getId();
             } else {
                 receiverUserId = user.get().getId();
             }
-        } else {
-            receiverUserId = dto.getReceiverUserId();
+        } else { // 회원
+            receiverUserId = receiverDto.getReceiverUserId();
         }
+        receiverDto.setSenderId(senderId);
+        receiverDto.setReceiverUserId(receiverUserId);
+        receiverDto.setYear(nextYear);
+        receiverDto.setIsDeleted(false);
+        result = receiverRepository.save(Mapper.toEntity(receiverDto));
+        Integer receiverId = result.getId();
 
-        dto.setSenderId(senderId);
-        dto.setReceiverUserId(receiverUserId);
+        // 답변 등록
+        List<ReceiverQuestionDto> answers = dto.getAnswers();
 
-        dto.setYear(nextYear);
-        dto.setIsDeleted(false);
-
-        result = receiverRepository.save(Mapper.toEntity(dto));
+        for (ReceiverQuestionDto answer : answers) {
+            answer.setReceiverId(receiverId);
+            ReceiverQuestion receiverQuestion = Mapper.toEntity(answer);
+            receiverQuestionRepository.save(receiverQuestion);
+        }
 
         return result;
     }

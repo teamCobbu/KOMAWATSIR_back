@@ -41,9 +41,9 @@ public class UserController {
     // 카카오 로그인 처리
     @GetMapping("/kakao/login-test")
     @Operation(summary = "Handle Kakao login", description = "Processes Kakao login using authorization code")
-    public ResponseEntity<UserDto> getKakaoLogin(@RequestParam String code, HttpServletRequest request) {
+    public ResponseEntity<UserDto> getKakaoLogin(@RequestParam String code, HttpServletRequest request,HttpServletResponse response) {
         try {
-            UserDto userDto = userService.getKakaoLogin(code, clientId, redirectUri, request);
+            UserDto userDto = userService.getKakaoLogin(code, clientId, redirectUri, request,response);
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);

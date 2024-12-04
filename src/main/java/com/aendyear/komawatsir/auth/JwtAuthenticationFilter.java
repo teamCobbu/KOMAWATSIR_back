@@ -27,23 +27,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
             String httpMethod = request.getMethod();
 
             // 인증 건너뛰기
-            if (requestURI.equals("/api/users/kakao/login-test")
-                    ||requestURI.equals("/api/users/kakao/loginPage")
-                    ||requestURI.equals("/api/users/kakao/logout")
-                    ||(httpMethod.equals("POST") && requestURI.matches("^/api/users/\\d+/receivers$"))
-                    ||(httpMethod.equals("GET")) &&requestURI.equals("/api/inquiry/{userId}/validate/url")
-                    ||requestURI.equals("/**")
-            ) {
+            if (isExcluded(requestURI, httpMethod)) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
             // 토큰 추출 및 검증
             String token = jwtTokenProvider.resolveToken(request);
-
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Authentication auth = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                SecurityContextHolder.getContext().setAuthentication(auth); // 인증 처리
             }
 
             filterChain.doFilter(request, response);
@@ -51,4 +44,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
     }
+
+    private boolean isExcluded(String requestURI, String httpMethod) {
+        // 인증이 필요없는 경로
+        return requestURI.equals("/api/users/kakao/login-test") ||
+                requestURI.equals("/api/users/kakao/loginPage") ||
+                requestURI.equals("/api/users/kakao/logout") ||
+                requestURI.equals("/**") ||
+                (httpMethod.equals("POST") && requestURI.matches("^/api/users/\\d+/receivers$")) ||
+                (httpMethod.equals("GET")) && requestURI.equals("/api/inquiry/{userId}/validate/url");
+    }
+
 }

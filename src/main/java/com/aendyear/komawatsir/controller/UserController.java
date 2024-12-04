@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @RestController
@@ -111,5 +112,14 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+    }
+
+    // 토큰 관련
+    @GetMapping("/token/validate")
+    @Operation(summary = "token validate", description = "토큰 검증")
+    public ResponseEntity<Boolean> validateToken(HttpServletRequest request) {
+//        return ResponseEntity.ok(userService.validateToken());
+        System.out.println(request.getHeader("Authorization"));
+        return null;
     }
 }

@@ -7,10 +7,14 @@ import com.aendyear.komawatsir.dto.UserDto;
 import com.aendyear.komawatsir.entity.User;
 import com.aendyear.komawatsir.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +41,7 @@ public class UserService {
     // ****  회원 가입 및 로그인, 로그아웃  *****
     // 카카오 로그인
     public UserDto getKakaoLogin(String code, String clientId, String redirectUri, HttpServletRequest request,HttpServletResponse response) {
+
         String accessToken = parseAccessToken(kakaoAuthService.getAccessToken(code, clientId, redirectUri));
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
@@ -52,13 +57,28 @@ public class UserService {
         return userDto;
     }
 
+    //인증된 사용자
+    public Integer getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("인증되지 않은 사용자입니다.");
+        }
+
+        String kakaoId = authentication.getName();
+        User user = userRepository.findByKakaoId(kakaoId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        return user.getId();
+    }
+
     private void addJwtToCookie(HttpServletResponse response, String jwtToken) {
         Cookie cookie = new Cookie("JWT", jwtToken);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);    // HTTPS에서만 (SSL인증)
+//        cookie.setSecure(true);    // HTTPS에서만 (SSL인증)
         cookie.setPath("/");
         cookie.setMaxAge(3600);    // 1시간
-        cookie.setDomain("Komawatsir.com");  // 쿠키가 적용될 도메인
+//        cookie.setDomain("localhost");  // 쿠키가 적용될 도메인
         response.addCookie(cookie);
     }
 
@@ -84,8 +104,7 @@ public class UserService {
     public boolean logout( String accessToken, HttpServletRequest request, HttpServletResponse response) {
         if (!kakaoAuthService.logout(accessToken)) return false;
         request.getSession().invalidate();
-        deleteCookie(response, "access_token");
-        deleteCookie(response, "refresh_token");
+        deleteCookie(response, "JWT");
         return true;
     }
 
@@ -149,7 +168,7 @@ public class UserService {
 
         if (optionalUser.isEmpty()) {
             // 사용자 없을 경우 404 상태 코드 반환
-            throw new IllegalArgumentException("User not found with Id: " + id);
+            throw new EntityNotFoundException("User not found with Id: " + id);
         }
 
         User existingUser = optionalUser.get();

@@ -1,6 +1,5 @@
 package com.aendyear.komawatsir.controller;
 
-import com.aendyear.komawatsir.auth.KakaoAuthService;
 import com.aendyear.komawatsir.auth.SessionService;
 import com.aendyear.komawatsir.dto.UserDto;
 import com.aendyear.komawatsir.service.UserService;
@@ -11,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Map;
 
 @RestController
@@ -85,19 +84,22 @@ public class UserController {
     @GetMapping("/{id}")
     @Operation(summary = "Get user by id", description = "회원 정보 조회")
     public ResponseEntity<UserDto> getUser(@PathVariable Integer id) {
-        UserDto userDto = userService.getUser(id);
-        if (userDto == null) {
-            return ResponseEntity.status(404).body(null);
+        Integer authId = userService.getAuthenticatedUser();
+        if (!authId.equals(id)) {
+            throw new AccessDeniedException("해당 사용자는 수정할 수 없습니다.");
         }
-
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(userService.getUser(authId));
     }
 
     // 회원정보 수정
     @PutMapping("/{id}")
     @Operation(summary = "Update user details", description = "회원정보 수정")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Integer id, @RequestBody UserDto userDto) {
-        UserDto updatedUser =  userService.updateUser(id, userDto);
+    public ResponseEntity<UserDto> updateUser(@PathVariable Integer id,@RequestBody UserDto userDto) {
+        Integer authId = userService.getAuthenticatedUser();
+        if (!authId.equals(id)) {
+            throw new AccessDeniedException("해당 사용자는 수정할 수 없습니다.");
+        }
+        UserDto updatedUser =  userService.updateUser(authId, userDto);
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -106,7 +108,12 @@ public class UserController {
     @Operation(summary = "Delete user", description = "회원 탈퇴")
     public ResponseEntity<UserDto> deleteUser(@PathVariable Integer id, HttpServletRequest request) {
         String accessToken = sessionService.getKakaoAccessTokenFromSession(request);
-        boolean isDeleted = userService.deleteUser(id, accessToken, clientId);
+        Integer authId = userService.getAuthenticatedUser();
+        if (!authId.equals(id)) {
+            throw new AccessDeniedException("해당 사용자는 탈퇴할 수 없습니다.");
+        }
+
+        boolean isDeleted = userService.deleteUser(authId, accessToken, clientId);
         if (isDeleted) {
             return ResponseEntity.ok().build();  // 200 OK 응답 (탈퇴 성공)
         } else {

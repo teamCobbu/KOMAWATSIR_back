@@ -43,12 +43,12 @@ public class DesignService {
     }
 
     // 디자인 추가
-    // todo: background 는 1번 이미지, thumbnail 는 2번 이미지로 초기값 고정
+    // todo: 초기값 결정
     public Design addDesign(Integer userId) {
         Design design = Design.builder()
                 .userId(userId)
-                .backgroundId(1)
-                .thumbnailId(2)
+                .backgroundId(20)
+                .thumbnailId(43)
                 .fontId(1)
                 .fontColor(FontColor.white)
                 .fontSize(FontSize.defaultSize)

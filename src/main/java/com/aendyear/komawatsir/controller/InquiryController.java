@@ -3,6 +3,7 @@ package com.aendyear.komawatsir.controller;
 import com.aendyear.komawatsir.dto.InquiryItemDto;
 import com.aendyear.komawatsir.entity.Inquiry;
 import com.aendyear.komawatsir.entity.InquiryItem;
+import com.aendyear.komawatsir.service.DesignService;
 import com.aendyear.komawatsir.service.InquiryService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class InquiryController {
 
     @Autowired
     private InquiryService inquiryService;
+
+    @Autowired
+    private DesignService designService;
 
     @GetMapping
     @Operation(summary = "inquiry question list", description = "질문 목록 불러오기")
@@ -33,7 +37,9 @@ public class InquiryController {
     @PostMapping("/{nickname}")
     @Operation(summary = "add inquiry", description = "닉네임 설정하기")
     public ResponseEntity<Inquiry> postQuestion(@PathVariable Integer userId, @PathVariable String nickname) {
-        return ResponseEntity.ok(inquiryService.postQuestion(userId, nickname));
+        Inquiry inquiry = inquiryService.postQuestion(userId, nickname);
+        designService.addDesign(userId);
+        return ResponseEntity.ok(inquiry);
     }
 
     @PostMapping

@@ -2,6 +2,7 @@ package com.aendyear.komawatsir.auth;
 
 import com.aendyear.komawatsir.dto.UserDto;
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -79,12 +80,15 @@ public class JwtTokenProvider {
     // HttpServletRequest에서 토큰 추출
     public String resolveToken(HttpServletRequest request) {
         try {
-            String bearerToken = request.getHeader("Authorization");
-            if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-                return bearerToken.substring(7);
-            } else {
-                return null;
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("JWT".equals(cookie.getName())) {
+                        return cookie.getValue();  // 쿠키에서 JWT 값을 반환
+                    }
+                }
             }
+            return null;
         } catch (Exception e) {
             throw new RuntimeException("Failed to resolve token", e);  // 예외 메시지에 추가 정보를 포함
         }

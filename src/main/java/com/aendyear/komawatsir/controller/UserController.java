@@ -5,6 +5,7 @@ import com.aendyear.komawatsir.auth.SessionService;
 import com.aendyear.komawatsir.dto.UserDto;
 import com.aendyear.komawatsir.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/users")
@@ -115,11 +117,11 @@ public class UserController {
     }
 
     // 토큰 관련
-    @GetMapping("/token/validate")
+    @GetMapping("/token/validate/{userId}")
     @Operation(summary = "token validate", description = "토큰 검증")
-    public ResponseEntity<Boolean> validateToken(HttpServletRequest request) {
-//        return ResponseEntity.ok(userService.validateToken());
-        System.out.println(request.getHeader("Authorization"));
-        return null;
+    public ResponseEntity<Boolean> validateToken(@PathVariable Integer userId, HttpServletRequest request) {
+        return ResponseEntity.ok(userService.validateToken(userId, request));
     }
+
+
 }

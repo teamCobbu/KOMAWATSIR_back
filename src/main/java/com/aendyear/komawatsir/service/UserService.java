@@ -55,10 +55,10 @@ public class UserService {
     private void addJwtToCookie(HttpServletResponse response, String jwtToken) {
         Cookie cookie = new Cookie("JWT", jwtToken);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);    // HTTPS에서만 (SSL인증)
+//        cookie.setSecure(true);    // HTTPS에서만 (SSL인증)
         cookie.setPath("/");
         cookie.setMaxAge(3600);    // 1시간
-        cookie.setDomain("Komawatsir.com");  // 쿠키가 적용될 도메인
+//        cookie.setDomain("Komawatsir.com");  // 쿠키가 적용될 도메인
         response.addCookie(cookie);
     }
 
@@ -182,5 +182,20 @@ public class UserService {
             return true;
         }
         return false; // 사용자 존재하지 않으면 false 반환
+    }
+
+    public boolean validateToken(Integer userId, HttpServletRequest request) {
+       boolean b = false;
+
+       String token = jwtTokenProvider.resolveToken(request);
+        if(jwtTokenProvider.validateToken(token)) {
+            String kakaoId = jwtTokenProvider.getUserId(token);
+
+            Optional<User> userInfo = userRepository.findByKakaoId(kakaoId);
+            if (userInfo.isPresent()) {
+                b = (userInfo.get().getId().equals(userId));
+            }
+        }
+        return b;
     }
 }

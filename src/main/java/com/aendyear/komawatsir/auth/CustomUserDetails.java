@@ -29,7 +29,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userDto.getName();  // 사용자 이름대신 닉네임 반환
+        return userDto.getKakaoId();  // 사용자 이름대신 kakaoId 반환
     }
 
     @Override
@@ -52,7 +52,7 @@ public class CustomUserDetails implements UserDetails {
         return true;  // 활성화됨
     }
 
-    public UserDto getUserDto() {// 카카오 사용자 정보 반환
+    public UserDto getKakao() {// 카카오 사용자 정보 반환
         return userDto;
     }
 }

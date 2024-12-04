@@ -45,7 +45,11 @@ public class JwtTokenProvider {
     // 토큰 검증 메서드
     public boolean validateToken(String token) {
         try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build().parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey.getBytes())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
             String subject = claims.getSubject();
             if(subject == null || subject.isEmpty()){
@@ -96,7 +100,7 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         String kakaoId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
-        UserDto kakaoUser = kakaoUserService.findByKakaoId(kakaoId); // 카카오에서 사용자 정보 가져오기
+        UserDto kakaoUser = kakaoUserService.findByKakaoId(kakaoId);
         if (kakaoUser == null) {
             throw new RuntimeException("User not found for Kakao ID: " + kakaoId); // 예외 발생
         }

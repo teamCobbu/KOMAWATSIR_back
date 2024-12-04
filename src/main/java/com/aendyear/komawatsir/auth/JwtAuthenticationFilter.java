@@ -11,7 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component //빈 자동등록때문에 나중에 활성화
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토큰을 검증
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
             String token = jwtTokenProvider.resolveToken(request);
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Authentication auth = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(auth); // 인증 처리
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
 
             filterChain.doFilter(request, response);
@@ -49,10 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
         // 인증이 필요없는 경로
         return requestURI.equals("/api/users/kakao/login-test") ||
                 requestURI.equals("/api/users/kakao/loginPage") ||
-                requestURI.equals("/api/users/kakao/logout") ||
+                requestURI.equals("/api/users/logout") ||
                 requestURI.equals("/**") ||
                 (httpMethod.equals("POST") && requestURI.matches("^/api/users/\\d+/receivers$")) ||
                 (httpMethod.equals("GET")) && requestURI.equals("/api/inquiry/{userId}/validate/url");
     }
-
 }

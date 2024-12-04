@@ -20,6 +20,7 @@ public class ReceiverRepositoryDSLImpl implements ReceiverRepositoryDSL {
 
     @Override
     public List<ReceiverDto> findBySenderIdAndYearAndIsDeletedIsFalse(Integer userId, String nextYear, boolean pending, boolean progressing, boolean completed) {
+
         QReceiver receiver = QReceiver.receiver;
         QPost post = QPost.post;
 
@@ -35,6 +36,7 @@ public class ReceiverRepositoryDSLImpl implements ReceiverRepositoryDSL {
             postStatusCondition.or(post.status.eq(PostStatus.COMPLETED));
         }
 
+        // Receiver 조회
         List<ReceiverDto> result = queryFactory.selectFrom(receiver)
                 .where(
                         receiver.senderId.eq(userId),
@@ -46,25 +48,33 @@ public class ReceiverRepositoryDSLImpl implements ReceiverRepositoryDSL {
                 .map(Mapper::toDto)
                 .collect(Collectors.toList());
 
+        // Post 데이터 처리
+        result.forEach(res -> {
+            List<Post> posts = queryFactory.selectFrom(post)
+                    .where(
+                            post.receiverId.eq(res.getId())
+                    )
+                    .fetch();
+
+            if (!posts.isEmpty()) {
+                // Post가 있을 경우 데이터 설정
+                Post postEntity = posts.get(0);
+                res.setPostStatus(postEntity.getStatus());
+                res.setPostContents(postEntity.getContents());
+            } else {
+                // Post가 없을 경우 기본값 설정
+                res.setPostStatus(PostStatus.PENDING);
+                res.setPostContents(""); // 기본 내용은 빈 문자열
+            }
+        });
+
+        // Post 상태 필터링
         result = result.stream()
                 .filter(res -> {
-                    List<Post> posts = queryFactory.selectFrom(post)
-                            .where(
-                                    post.receiverId.eq(res.getId()),
-                                    postStatusCondition // 동적으로 추가된 필터 조건
-                            )
-                            .fetch();
-
-                    if (!posts.isEmpty()) {
-                        Post postEntity = posts.get(0);
-                        res.setPostStatus(postEntity.getStatus());
-                        res.setPostContents(postEntity.getContents());
-                        return true;
-                        // 필터 통과
-                    } else {
-                        return false;
-                        // 조건에 맞는 Post가 없으면 제외
-                    }
+                    PostStatus status = res.getPostStatus();
+                    return (pending && status == PostStatus.PENDING)
+                            || (progressing && status == PostStatus.PROGRESSING)
+                            || (completed && status == PostStatus.COMPLETED);
                 })
                 .collect(Collectors.toList());
 

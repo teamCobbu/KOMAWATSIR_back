@@ -36,21 +36,30 @@ public class UserService {
 
     // ****  회원 가입 및 로그인, 로그아웃  *****
     // 카카오 로그인
-    public UserDto getKakaoLogin(String code, String clientId, String redirectUri, HttpServletRequest request) {
+    public UserDto getKakaoLogin(String code, String clientId, String redirectUri, HttpServletRequest request,HttpServletResponse response) {
         String accessToken = parseAccessToken(kakaoAuthService.getAccessToken(code, clientId, redirectUri));
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
         }
         User user = findOrSaveUser(getUserInfoFromKakao(accessToken));
-
         UserDto userDto = new UserDto(user);
 
         String jwtToken = jwtTokenProvider.createToken(user.getKakaoId());
-        request.getSession().setAttribute("jwt_token", jwtToken);
+        addJwtToCookie(response, jwtToken);
 
         request.getSession().setAttribute("kakao_access_token", accessToken);
 
         return userDto;
+    }
+
+    private void addJwtToCookie(HttpServletResponse response, String jwtToken) {
+        Cookie cookie = new Cookie("JWT", jwtToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);    // HTTPS에서만 (SSL인증)
+        cookie.setPath("/");
+        cookie.setMaxAge(3600);    // 1시간
+        cookie.setDomain("Komawatsir.com");  // 쿠키가 적용될 도메인
+        response.addCookie(cookie);
     }
 
     // Access Token을 JSON에서 추출

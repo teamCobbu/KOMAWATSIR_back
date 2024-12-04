@@ -1,6 +1,7 @@
 package com.aendyear.komawatsir.service;
 
 import com.aendyear.komawatsir.dto.InquiryItemDto;
+import com.aendyear.komawatsir.dto.UserDto;
 import com.aendyear.komawatsir.entity.Inquiry;
 import com.aendyear.komawatsir.entity.InquiryItem;
 import com.aendyear.komawatsir.repository.InquiryItemRepository;
@@ -12,8 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -103,35 +106,50 @@ public class InquiryService {
     // url 추출하기
     public String getUrl(Integer userId) {
         try {
-            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(), "HmacSHA256");
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(secretKey);
+            String data = userId + ":" + System.currentTimeMillis();
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-            byte[] hmacBytes = mac.doFinal(String.valueOf(userId).getBytes());
-
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(hmacBytes);
+            byte[] encrypted = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(encrypted);
         } catch (Exception e) {
-            System.out.println("getUrl ERROR : " + e.getMessage());
+            System.out.println("encryptUserId ERROR : " + e.getMessage());
             return null;
         }
     }
 
     // url 검증하기
-    public Boolean validateUrl(Integer userId, String url) {
-        String userIdHmac = getUrl(userId);
+    public Integer validateUrl(String encryptedUrl) {
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-        /*
-        equals 메소드는 문자열 길이에 따라 수행 시간이 달라질 수 있으므로 타이밍 공격(실행 시간 차이로 비밀 키 추측)에 취약.
-        타임 인디펜던트 비교(입력 데이터의 길이와 내용에 관계없이 일정한 실행 시간을 유지하여 비교)를 구현함 (아래 코드)
-         */
-        if (userIdHmac == null || url == null || userIdHmac.length() != url.length()) {
-            return false;
-        }
-        int result = 0;
-        for (int i = 0; i < userIdHmac.length(); i++) {
-            result |= userIdHmac.charAt(i) ^ url.charAt(i);
-        }
+            byte[] decryptedBytes = cipher.doFinal(Base64.getUrlDecoder().decode(encryptedUrl));
+            String decryptedData = new String(decryptedBytes, StandardCharsets.UTF_8);
 
-        return result == 0;
+            System.out.println("Decrypted Data: " + decryptedData);
+
+            String[] parts = decryptedData.split(":");
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Invalid decrypted data format");
+            }
+
+            return Integer.parseInt(parts[0]); // 사용자 ID 반환
+        } catch (Exception e) {
+            System.out.println("decryptUserId ERROR : " + e.getMessage());
+            return null;
+        }
+    }
+
+    public UserDto getUserInquiryNickname(Integer userId) {
+        UserDto user = new UserDto();
+        Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
+        if (inquiry.isPresent()) {
+            user.setId(userId);
+            user.setName(inquiry.get().getNickname());
+        }
+        return user;
     }
 }

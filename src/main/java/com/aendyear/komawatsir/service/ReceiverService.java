@@ -1,12 +1,13 @@
 package com.aendyear.komawatsir.service;
 
-import com.aendyear.komawatsir.dto.InquiryItemDto;
 import com.aendyear.komawatsir.dto.ReceiverAdderDto;
 import com.aendyear.komawatsir.dto.ReceiverDto;
 import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
-import com.aendyear.komawatsir.entity.*;
+import com.aendyear.komawatsir.entity.InquiryItem;
+import com.aendyear.komawatsir.entity.Receiver;
+import com.aendyear.komawatsir.entity.ReceiverQuestion;
+import com.aendyear.komawatsir.entity.User;
 import com.aendyear.komawatsir.repository.*;
-import com.aendyear.komawatsir.type.PostStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

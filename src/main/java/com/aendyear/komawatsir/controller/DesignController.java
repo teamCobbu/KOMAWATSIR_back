@@ -1,14 +1,11 @@
 package com.aendyear.komawatsir.controller;
 
-import com.aendyear.komawatsir.dto.ImageDto;
 import com.aendyear.komawatsir.entity.Design;
 import com.aendyear.komawatsir.service.DesignService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users/{userId}/designs")

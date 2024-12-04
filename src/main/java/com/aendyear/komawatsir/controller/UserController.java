@@ -1,11 +1,9 @@
 package com.aendyear.komawatsir.controller;
 
-import com.aendyear.komawatsir.auth.KakaoAuthService;
 import com.aendyear.komawatsir.auth.SessionService;
 import com.aendyear.komawatsir.dto.UserDto;
 import com.aendyear.komawatsir.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/users")

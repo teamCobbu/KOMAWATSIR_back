@@ -1,13 +1,10 @@
 package com.aendyear.komawatsir.controller;
 
-import com.aendyear.komawatsir.dto.PostDto;
 import com.aendyear.komawatsir.dto.ReceiverAdderDto;
 import com.aendyear.komawatsir.dto.ReceiverDto;
 import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
-import com.aendyear.komawatsir.entity.Post;
 import com.aendyear.komawatsir.entity.Receiver;
 import com.aendyear.komawatsir.service.ReceiverService;
-import com.aendyear.komawatsir.type.PostStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

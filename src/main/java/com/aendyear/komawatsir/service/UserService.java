@@ -86,6 +86,7 @@ public class UserService {
         request.getSession().invalidate();
         deleteCookie(response, "access_token");
         deleteCookie(response, "refresh_token");
+        deleteCookie(response, "JWT");
         return true;
     }
 

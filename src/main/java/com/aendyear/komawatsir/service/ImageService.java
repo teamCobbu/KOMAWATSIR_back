@@ -2,11 +2,9 @@ package com.aendyear.komawatsir.service;
 
 import com.aendyear.komawatsir.dto.ImageDto;
 import com.aendyear.komawatsir.entity.Image;
-import com.aendyear.komawatsir.entity.QImage;
 import com.aendyear.komawatsir.repository.ImageRepository;
 import com.aendyear.komawatsir.type.ImageCategory;
 import com.aendyear.komawatsir.type.SourceType;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;

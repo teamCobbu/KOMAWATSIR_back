@@ -1,16 +1,15 @@
 package com.aendyear.komawatsir.controller;
 
 import com.aendyear.komawatsir.dto.ImageDto;
-import com.aendyear.komawatsir.entity.Image;
-import com.aendyear.komawatsir.repository.ImageRepository;
 import com.aendyear.komawatsir.service.ImageService;
 import com.aendyear.komawatsir.type.ImageCategory;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 

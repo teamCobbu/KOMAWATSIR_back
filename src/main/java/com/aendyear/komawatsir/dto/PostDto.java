@@ -27,4 +27,6 @@ public class PostDto {
     private PostStatus status;
 
     private String year;
+
+    private String imageUrl;
 }

@@ -4,7 +4,9 @@ import com.aendyear.komawatsir.dto.PostDesignDto;
 import com.aendyear.komawatsir.dto.PostDto;
 import com.aendyear.komawatsir.entity.*;
 import com.aendyear.komawatsir.repository.*;
+import com.aendyear.komawatsir.type.ImageCategory;
 import com.aendyear.komawatsir.type.PostStatus;
+import com.aendyear.komawatsir.type.SourceType;
 import jakarta.transaction.Transactional;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -181,5 +185,18 @@ public class PostService {
 
            }
         return postDesignDto;
+    }
+
+    public void saveImage(Integer postId, String fileUrl){
+        Post post = postRepository.findById(postId).get(); // 없으면?
+        String customNo = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
+        // todo: Post 테이블에 imageUrl 필드 추가 시 imageRepository에는 더이상 추가할 필요 없을 거 같음
+        imageRepository.save(Image.builder()
+                .category(ImageCategory.CUSTOM)
+                .name(postId + "_" + customNo)
+                .pic(fileUrl)
+                .sourceType(SourceType.USER)
+                .userId(postId)
+                .build());
     }
 }

@@ -32,5 +32,8 @@ public class Post {
     @Column(length = 20)
     private PostStatus status;
 
+    @Column(name = "image_url", nullable = true)
+    private String imageUrl;
+
     private String year;
 }

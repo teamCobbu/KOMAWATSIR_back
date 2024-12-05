@@ -187,16 +187,41 @@ public class PostService {
         return postDesignDto;
     }
 
-    public void saveImage(Integer postId, String fileUrl){
-        Post post = postRepository.findById(postId).get(); // 없으면?
-        String customNo = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
-        // todo: Post 테이블에 imageUrl 필드 추가 시 imageRepository에는 더이상 추가할 필요 없을 거 같음
-        imageRepository.save(Image.builder()
-                .category(ImageCategory.CUSTOM)
-                .name(postId + "_" + customNo)
-                .pic(fileUrl)
-                .sourceType(SourceType.USER)
-                .userId(postId)
-                .build());
+
+    // todo: 테스트용 (추후 삭제)
+    // 연도별 받은 연하장
+    public List<PostDesignDto> getAllCards() {
+        List<PostDesignDto> result = new ArrayList<PostDesignDto>();
+
+            List<Post> posts = postRepository.findAll();
+
+            posts.forEach(post -> {
+                PostDesignDto postDesignDto = new PostDesignDto();
+                postDesignDto.setPostId(post.getId());
+                postDesignDto.setSenderId(post.getSenderId());
+                postDesignDto.setReceiverId(post.getReceiverId());
+                postDesignDto.setSenderNickname(post.getSenderNickname());
+                postDesignDto.setContents(post.getContents());
+                postDesignDto.setYear(post.getYear());
+                postDesignDto.setBackgroundPic(post.getImageUrl());
+
+                Optional<Design> designs = designRepository.findByUserIdAndYear(post.getSenderId(), post.getYear());
+                if (designs.isPresent()) {
+                    Design design = designs.get();
+
+                    // thumbnail
+                    Optional<Image> thumbnail = imageRepository.findById(design.getThumbnailId());
+                    thumbnail.ifPresent(image -> postDesignDto.setThumbnailPic(image.getPic()));
+
+                    // font
+                    Optional<Font> fonts = fontRepository.findById(design.getFontId());
+                    fonts.ifPresent(font -> {
+                        postDesignDto.setFontUrl(font.getUrl());
+                        postDesignDto.setFontName(font.getName());
+                    });
+                }
+                result.add(postDesignDto);
+            });
+        return result;
     }
 }

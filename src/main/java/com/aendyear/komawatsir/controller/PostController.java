@@ -75,35 +75,11 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostDesign(userId));
     }
 
-
-    private AmazonS3Client amazonS3Client;
-
-    // S3 버킷 이름을 가져옵니다.
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
-
-    @PostMapping("/post/image")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("postId") Integer postId) {
-
-
-        try {
-            String fileName = "post/" + file.getOriginalFilename();  // 폴더 경로 포함
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
-
-            // S3에 파일을 업로드
-            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-
-            // 업로드된 파일의 URL을 가져옵니다.
-            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
-
-            postService.saveImage(postId, fileUrl);
-
-            return ResponseEntity.ok(fileUrl);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    // todo: 테스트용 -> 추후 삭제
+    @GetMapping("/posts/all")
+    @Operation(summary = "load post design", description = "포스트 디자인 가져오기")
+    public ResponseEntity<List<PostDesignDto>> getAllCards() {
+        return ResponseEntity.ok(postService.getAllCards());
     }
+
 }

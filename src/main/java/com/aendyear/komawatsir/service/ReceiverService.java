@@ -81,15 +81,15 @@ public class ReceiverService {
         result = receiverRepository.save(Mapper.toEntity(receiverDto));
         Integer receiverId = result.getId();
 
-        // 답변 등록
+        // 답변 등록: 직접 추가가 아닌 신청 시에만 (answers가 null이 아닐 때만)
         List<ReceiverQuestionDto> answers = dto.getAnswers();
-
-        for (ReceiverQuestionDto answer : answers) {
-            answer.setReceiverId(receiverId);
-            ReceiverQuestion receiverQuestion = Mapper.toEntity(answer);
-            receiverQuestionRepository.save(receiverQuestion);
+        if(answers != null && !answers.isEmpty()){
+            for (ReceiverQuestionDto answer : answers) {
+                answer.setReceiverId(receiverId);
+                ReceiverQuestion receiverQuestion = Mapper.toEntity(answer);
+                receiverQuestionRepository.save(receiverQuestion);
+            }
         }
-
         return result;
     }
 

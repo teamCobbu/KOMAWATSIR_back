@@ -32,6 +32,7 @@ public class ReceiverController {
         return ResponseEntity.ok(receiverService.postAddReceiver(senderId, dto));
     }
 
+
     @GetMapping("/check/tel")
     @Operation(summary = "check receiver tel duplication", description = "수신인 번호 중복 확인하기")
     public ResponseEntity<Boolean> postCheckReceiver(@PathVariable(name = "userId") Integer senderId, @RequestParam String tel) {

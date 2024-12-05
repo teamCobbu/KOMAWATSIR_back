@@ -112,6 +112,7 @@ public class InquiryService {
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
             byte[] encrypted = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            System.out.println("링크: " + Base64.getUrlEncoder().withoutPadding().encodeToString(encrypted));
             return Base64.getUrlEncoder().withoutPadding().encodeToString(encrypted);
         } catch (Exception e) {
             System.out.println("encryptUserId ERROR : " + e.getMessage());

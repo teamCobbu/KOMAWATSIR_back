@@ -130,11 +130,6 @@ public class ReceiverService {
         return result;
     }
 
-    // 수신인 목록 조회하기
-//    public Page<ReceiverDto> getReceiverList(Integer userId, Integer page, Integer size, boolean pending, boolean progressing, boolean completed) {
-//        return receiverRepository.findBySenderIdAndYearAndIsDeletedIsFalse(userId, nextYear, page, size, pending, progressing, completed);
-//    }
-
     public Page<ReceiverDto> getReceiverList(
             Integer userId,
             Pageable pageable,

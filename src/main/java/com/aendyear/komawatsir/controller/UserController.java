@@ -127,4 +127,6 @@ public class UserController {
     public ResponseEntity<Boolean> validateToken(@PathVariable Integer userId, HttpServletRequest request) {
         return ResponseEntity.ok(userService.validateToken(userId, request));
     }
+
+
 }

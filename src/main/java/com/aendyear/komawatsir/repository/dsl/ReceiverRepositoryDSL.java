@@ -1,11 +1,12 @@
 package com.aendyear.komawatsir.repository.dsl;
 
 import com.aendyear.komawatsir.dto.ReceiverDto;
-import com.aendyear.komawatsir.type.PostStatus;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ReceiverRepositoryDSL {
 
-    List<ReceiverDto> findBySenderIdAndYearAndIsDeletedIsFalse(Integer userId, String nextYear,  boolean pending, boolean progressing, boolean completed);
+    Page<ReceiverDto> findReceiverWithPaging(Integer userId, String nextYear, Pageable pageable,
+                                             boolean pending, boolean progressing, boolean completed);
 }

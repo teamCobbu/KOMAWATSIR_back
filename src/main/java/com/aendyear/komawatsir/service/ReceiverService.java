@@ -10,6 +10,10 @@ import com.aendyear.komawatsir.entity.User;
 import com.aendyear.komawatsir.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -127,7 +131,17 @@ public class ReceiverService {
     }
 
     // 수신인 목록 조회하기
-    public List<ReceiverDto> getReceiverList(Integer userId, boolean pending, boolean progressing, boolean completed) {
-        return receiverRepository.findBySenderIdAndYearAndIsDeletedIsFalse(userId, nextYear, pending, progressing, completed);
+//    public Page<ReceiverDto> getReceiverList(Integer userId, Integer page, Integer size, boolean pending, boolean progressing, boolean completed) {
+//        return receiverRepository.findBySenderIdAndYearAndIsDeletedIsFalse(userId, nextYear, page, size, pending, progressing, completed);
+//    }
+
+    public Page<ReceiverDto> getReceiverList(
+            Integer userId,
+            Pageable pageable,
+            boolean pending,
+            boolean progressing,
+            boolean completed
+    ) {
+        return receiverRepository.findReceiverWithPaging(userId, nextYear, pageable, pending, progressing, completed);
     }
 }

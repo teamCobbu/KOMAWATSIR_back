@@ -6,7 +6,10 @@ import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
 import com.aendyear.komawatsir.entity.Receiver;
 import com.aendyear.komawatsir.service.ReceiverService;
 import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,7 +59,7 @@ public class ReceiverController {
     // todo : 카테고리별
     @GetMapping
     @Operation(summary = "receiver list", description = "수신인 목록 조회하기")
-    public ResponseEntity<List<ReceiverDto>> getReceiverList(@PathVariable Integer userId, @RequestParam boolean pending, @RequestParam boolean progressing, @RequestParam boolean completed) {
-        return ResponseEntity.ok(receiverService.getReceiverList(userId, pending, progressing, completed));
+    public ResponseEntity<Page<ReceiverDto>> getReceiverList(@PathVariable Integer userId, Pageable pageable, @RequestParam boolean pending, @RequestParam boolean progressing, @RequestParam boolean completed) {
+        return ResponseEntity.ok(receiverService.getReceiverList(userId, pageable, pending, progressing, completed));
     }
 }

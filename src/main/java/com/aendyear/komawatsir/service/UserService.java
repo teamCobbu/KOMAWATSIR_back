@@ -17,12 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.Optional;
 
 @Service
-@Validated
 public class UserService {
 
     private final KakaoAuthService kakaoAuthService;
@@ -166,7 +164,6 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(id);
 
         if (optionalUser.isEmpty()) {
-            // 사용자 없을 경우 404 상태 코드 반환
             throw new EntityNotFoundException("User not found with Id: " + id);
         }
 
@@ -208,7 +205,6 @@ public class UserService {
         String token = jwtTokenProvider.resolveToken(request);
         if(jwtTokenProvider.validateToken(token)) {
             String kakaoId = jwtTokenProvider.getUserId(token);
-
             Optional<User> userInfo = userRepository.findByKakaoId(kakaoId);
             if (userInfo.isPresent()) {
                 b = (userInfo.get().getId().equals(userId));

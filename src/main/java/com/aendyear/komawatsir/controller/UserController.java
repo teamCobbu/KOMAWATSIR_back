@@ -6,17 +6,24 @@ import com.aendyear.komawatsir.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
+@Validated
 public class UserController {
     @Autowired
     private UserService userService;
@@ -85,8 +92,11 @@ public class UserController {
     @Operation(summary = "Get user by id", description = "회원 정보 조회")
     public ResponseEntity<UserDto> getUser(@PathVariable Integer id) {
         Integer authId = userService.getAuthenticatedUser();
+        if (authId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // 인증되지 않은 경우 처리
+        }
         if (!authId.equals(id)) {
-            throw new AccessDeniedException("해당 사용자는 수정할 수 없습니다.");
+            throw new AccessDeniedException("사용자를 조회할 수 없습니다.");
         }
         return ResponseEntity.ok(userService.getUser(authId));
     }
@@ -94,13 +104,26 @@ public class UserController {
     // 회원정보 수정
     @PutMapping("/{id}")
     @Operation(summary = "Update user details", description = "회원정보 수정")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Integer id,@RequestBody UserDto userDto) {
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody @Valid UserDto userDto, BindingResult bindingResult) {
         Integer authId = userService.getAuthenticatedUser();
         if (!authId.equals(id)) {
             throw new AccessDeniedException("해당 사용자는 수정할 수 없습니다.");
         }
-        UserDto updatedUser =  userService.updateUser(authId, userDto);
-        return ResponseEntity.ok(updatedUser);
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            System.out.println("Binding Result Errors: " + errorMessages);
+            return ResponseEntity.badRequest().body(errorMessages);
+        }
+        try {
+            UserDto updatedUser = userService.updateUser(id, userDto);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            // 예외 처리 로그
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+        }
     }
 
     // 회원 탈퇴 (pk 유지)

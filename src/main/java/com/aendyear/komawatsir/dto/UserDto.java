@@ -13,23 +13,19 @@ import lombok.*;
 @Builder
 public class UserDto {
     private Integer id;
+    @Pattern(regexp = "^[A-Za-z가-힣]+$")
     private String name;
-    @Size(min = 10, max = 11)
+    @Pattern(regexp = "^[0-9]{11}$", message = "전화번호는 11자리 숫자만 가능합니다.")
     private String tel;
+    @Pattern(regexp = "^[0-9]{10,11}$")
     private String kakaoId;
+    @NotNull
     private Boolean isSmsAllowed;
 
     public UserDto(User user) {
         this.id = user.getId();
         this.name = user.getName();
         this.tel = user.getTel();
-        this.isSmsAllowed = user.getIsSmsAllowed();
-    }
-
-    public UserDto(User user, String accessToken) {
-        this.id = user.getId();
-        this.name = user.getName();
-        this.kakaoId = user.getKakaoId();
         this.isSmsAllowed = user.getIsSmsAllowed();
     }
 }

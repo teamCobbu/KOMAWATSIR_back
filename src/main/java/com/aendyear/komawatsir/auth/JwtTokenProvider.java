@@ -102,7 +102,7 @@ public class JwtTokenProvider {
         String kakaoId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
         UserDto kakaoUser = kakaoUserService.findByKakaoId(kakaoId);
         if (kakaoUser == null) {
-            throw new RuntimeException("User not found for Kakao ID: " + kakaoId); // 예외 발생
+            throw new RuntimeException("User not found: " + kakaoUser.getId()); // 예외 발생
         }
         UserDetails userDetails = new CustomUserDetails(kakaoUser); // CustomUserDetails는 사용자의 정보를 포함한 클래스
 

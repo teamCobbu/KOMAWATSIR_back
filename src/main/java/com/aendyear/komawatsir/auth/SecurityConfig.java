@@ -22,6 +22,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 비활성화
@@ -40,6 +41,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.addAllowedOrigin("http://localhost:3000");  // React 앱 URL 허용
+        corsConfig.setAllowCredentials(true);
         corsConfig.addAllowedMethod("*");  // 모든 HTTP 메서드 허용
         corsConfig.addAllowedHeader("*");  // 모든 HTTP 헤더 허용
 

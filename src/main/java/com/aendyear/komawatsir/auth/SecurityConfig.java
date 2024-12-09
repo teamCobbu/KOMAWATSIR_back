@@ -24,20 +24,18 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 비활성화
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/actuator/**").permitAll() // Actuator 경로 허용
                         .requestMatchers("/api/users/kakao/loginPage", "/api/users/kakao/login-test").permitAll()
                         .requestMatchers("/api/users/logout").permitAll()
                         .requestMatchers("/api/inquiry/{userId}/validate/url").permitAll()
-                        .requestMatchers("/**").permitAll() //전체
-                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
-                         UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {

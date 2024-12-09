@@ -31,6 +31,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                         .requestMatchers("/api/users/logout").permitAll()
                         .requestMatchers("/api/inquiry/{userId}/validate/url").permitAll()
                         .requestMatchers("/**").permitAll() //전체
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                          UsernamePasswordAuthenticationFilter.class);

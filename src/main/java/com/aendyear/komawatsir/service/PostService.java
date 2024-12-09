@@ -84,9 +84,9 @@ public class PostService {
                     Optional<Font> fonts = fontRepository.findById(design.getFontId());
                     fonts.ifPresent(font -> {
                         postDesignDto.setFontUrl(font.getUrl());
+                        postDesignDto.setFontName(font.getName());
                     });
                 }
-
                 result.add(postDesignDto);
             });
         });

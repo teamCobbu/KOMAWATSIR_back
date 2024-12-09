@@ -108,7 +108,6 @@ public class PostService {
                 postDesignDto.setSenderNickname(post.getSenderNickname());
                 postDesignDto.setContents(post.getContents());
                 postDesignDto.setYear(post.getYear());
-                postDesignDto.setBackgroundPic(post.getImageUrl());
 
                 Optional<Design> designs = designRepository.findByUserIdAndYear(post.getSenderId(), post.getYear());
                 if (designs.isPresent()) {
@@ -117,6 +116,10 @@ public class PostService {
                     // thumbnail
                     Optional<Image> thumbnail = imageRepository.findById(design.getThumbnailId());
                     thumbnail.ifPresent(image -> postDesignDto.setThumbnailPic(image.getPic()));
+
+                    // background
+                    Optional<Image> background = imageRepository.findById(design.getBackgroundId());
+                    background.ifPresent(image -> postDesignDto.setBackgroundPic(image.getPic()));
 
                     // font
                     Optional<Font> fonts = fontRepository.findById(design.getFontId());

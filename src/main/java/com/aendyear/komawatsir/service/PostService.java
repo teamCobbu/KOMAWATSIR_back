@@ -93,6 +93,44 @@ public class PostService {
         return result;
     }
 
+    // 유저가 받은 전체 연하장
+    public List<PostDesignDto> getCardsByUser(Integer receiverUserId) {
+        List<PostDesignDto> result = new ArrayList<>();
+
+        receiverRepository.findByReceiverUserId(receiverUserId).forEach(receiver -> {
+            List<Post> posts = postRepository.findByReceiverIdAndStatusNot(receiver.getId(), PostStatus.DELETED);
+
+            posts.forEach(post -> {
+                PostDesignDto postDesignDto = new PostDesignDto();
+                postDesignDto.setPostId(post.getId());
+                postDesignDto.setSenderId(post.getSenderId());
+                postDesignDto.setReceiverId(post.getReceiverId());
+                postDesignDto.setSenderNickname(post.getSenderNickname());
+                postDesignDto.setContents(post.getContents());
+                postDesignDto.setYear(post.getYear());
+                postDesignDto.setBackgroundPic(post.getImageUrl());
+
+                Optional<Design> designs = designRepository.findByUserIdAndYear(post.getSenderId(), post.getYear());
+                if (designs.isPresent()) {
+                    Design design = designs.get();
+
+                    // thumbnail
+                    Optional<Image> thumbnail = imageRepository.findById(design.getThumbnailId());
+                    thumbnail.ifPresent(image -> postDesignDto.setThumbnailPic(image.getPic()));
+
+                    // font
+                    Optional<Font> fonts = fontRepository.findById(design.getFontId());
+                    fonts.ifPresent(font -> {
+                        postDesignDto.setFontUrl(font.getUrl());
+                        postDesignDto.setFontName(font.getName());
+                    });
+                }
+                result.add(postDesignDto);
+            });
+        });
+        return result;
+    }
+
     // gpt 통신으로 연하장 내용 생성하기
     public String getUseGpt(String prompt) {
         String request = prompt + " " + nextYear + "년 연하장, 한글로, 100글자";

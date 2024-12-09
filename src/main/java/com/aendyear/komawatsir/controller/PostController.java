@@ -75,6 +75,12 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostDesign(userId));
     }
 
+    @GetMapping("/receivers/{receiverUserId}/posts/all")
+    @Operation(summary = "show card by receiver", description = "받은 전체 연하장 조회")
+    public ResponseEntity<List<PostDesignDto>> getCardsByUser(@PathVariable Integer receiverUserId) {
+        return ResponseEntity.ok(postService.getCardsByUser(receiverUserId));
+    }
+
     // todo: 테스트용 -> 추후 삭제
     @GetMapping("/posts/all")
     @Operation(summary = "load post design", description = "포스트 디자인 가져오기")

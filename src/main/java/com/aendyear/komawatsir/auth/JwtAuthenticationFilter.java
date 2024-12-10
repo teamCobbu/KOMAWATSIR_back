@@ -65,6 +65,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT ÌÜ†ÌÅ
                 requestURI.equals("/api/users/logout") ||
                 requestURI.equals("/**") ||
                 (httpMethod.equals("POST") && requestURI.matches("^/api/users/\\d+/receivers$")) ||
-                (httpMethod.equals("GET")) && requestURI.equals("/api/inquiry/{userId}/validate/url");
+                (httpMethod.equals("GET")) && requestURI.equals("/api/inquiry/validate/url");
     }
 }

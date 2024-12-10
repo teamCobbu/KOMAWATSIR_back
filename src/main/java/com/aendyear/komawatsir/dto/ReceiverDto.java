@@ -31,6 +31,6 @@ public class ReceiverDto {
 
     private Boolean isDeleted;
 
-    private PostStatus postStatus = PostStatus.PENDING;
-    private String postContents = "";
+    private PostStatus postStatus;
+    private String postContents;
 }

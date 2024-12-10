@@ -56,7 +56,6 @@ public class ReceiverController {
         return ResponseEntity.ok(receiverService.getReceiverQuestion(senderId, receiverId));
     }
 
-    // todo : 카테고리별
     @GetMapping
     @Operation(summary = "receiver list", description = "수신인 목록 조회하기")
     public ResponseEntity<Page<ReceiverDto>> getReceiverList(@PathVariable Integer userId, Pageable pageable, @RequestParam boolean pending, @RequestParam boolean progressing, @RequestParam boolean completed) {

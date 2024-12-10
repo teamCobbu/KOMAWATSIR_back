@@ -29,7 +29,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                         .requestMatchers("/actuator/**").permitAll() // Actuator 경로 허용
                         .requestMatchers("/api/users/kakao/loginPage", "/api/users/kakao/login-test").permitAll()
                         .requestMatchers("/api/users/logout").permitAll()
-                        .requestMatchers("/api/inquiry/{userId}/validate/url").permitAll()
+                        .requestMatchers("/api/inquiry/validate/url").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 

@@ -17,6 +17,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
+          distribution: 'temurin' # JDK 배포판 설정 (temurin, zulu 등)
 
       - name: Build JAR file
         run: |

@@ -3,16 +3,24 @@ name: Deploy to AWS ECS
 on:
   push:
     branches:
-      - main  # main 브랜치에 push될 때 실행
+      - main
 
 jobs:
   deploy:
-    name: Deploy to ECS
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: Build JAR file
+        run: |
+          ./gradlew clean build
 
       - name: Log in to Amazon ECR
         run: |
@@ -21,7 +29,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Build and Push Docker Image
+      - name: Build and push Docker image
         run: |
           docker build -t aendyear-back .
           docker tag aendyear-back:latest ${{ secrets.ECR_REPOSITORY_URL }}:latest

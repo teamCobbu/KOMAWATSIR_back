@@ -57,6 +57,18 @@ public class ReceiverService {
         return b;
     }
 
+    // 중복 신청 여부 확인하기
+    public Boolean duplicationCheckId(Integer senderId, Integer id) {
+        boolean b = false;
+
+        Optional<Receiver> receiver = receiverRepository.findBySenderIdAndReceiverUserIdAndYear(senderId, id, nextYear);
+        if (receiver.isPresent()) {
+            b = true;
+        }
+
+        return b;
+    }
+
     InquiryService inquiryService;
 
     // 수신인 신청: 수신인 추가 & 답변 등록

@@ -73,7 +73,7 @@ jobs:
         run: |
           aws ecs update-service \
             --cluster AendyearCluster \
-            --service komawatsir-aendyear \
+            --service komawotsir-aendyear \
             --task-definition AendyearTask \
             --region $AWS_REGION \
             --force-new-deployment

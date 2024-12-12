@@ -57,7 +57,7 @@ jobs:
         run: |
           # 현재 Task Definition 가져오기
           aws ecs describe-task-definition \
-            --task-definition komawatsir-task \
+            --task-definition AendyearTask \
             --region $AWS_REGION > task-definition.json
 
           # 새 Task Definition 생성

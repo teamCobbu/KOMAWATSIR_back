@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for komawotsir
+name: Deploy to ECS
 
 on:
   push:
@@ -6,26 +6,15 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 코드 체크아웃
+      # 1. Checkout Repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      # 2. JDK 설치
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      # 3. Gradle 빌드
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test
-
-      # 4. AWS 자격 증명 설정
+      # 2. Set AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -33,48 +22,52 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # 5. Amazon ECR 로그인
+      # 3. Log in to Amazon ECR
       - name: Log in to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # 6. Docker 이미지 빌드 및 푸시
-      - name: Build, Tag, and Push Docker image
-        env:
-          ECR_REPOSITORY: aendyear-back
+      # 4. Build and Push Docker Image
+      - name: Build and Push Docker Image
         run: |
-          IMAGE_TAG=latest
-          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG"
-          echo "Pushing Docker Image: $IMAGE_URI"
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG $IMAGE_URI
-          docker push $IMAGE_URI
+          ECR_REPO_NAME="aendyear-front"
+          IMAGE_TAG="latest"
+          REPOSITORY_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/$ECR_REPO_NAME"
 
-      # 7. 새 Task Definition 등록
-      - name: Register new Task Definition
-        env:
-          AWS_REGION: ap-northeast-2
-          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/aendyear-back:latest
+          # Build Docker image
+          docker build -t $ECR_REPO_NAME:$IMAGE_TAG .
+
+          # Tag the image for ECR
+          docker tag $ECR_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+
+          # Push the image to ECR
+          docker push $REPOSITORY_URI:$IMAGE_TAG
+
+      # 5. Update Task Definition and Deploy to ECS
+      - name: Update Task Definition and Deploy to ECS
         run: |
+          ECR_REPO_NAME="aendyear-front"
+          IMAGE_TAG="latest"
+          REPOSITORY_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/$ECR_REPO_NAME"
+
+          # Fetch existing Task Definition
           aws ecs describe-task-definition \
             --task-definition AendyearTask \
-            --region $AWS_REGION > task-definition.json
+            --region ap-northeast-2 > aendyear-task-definition.json
 
-          jq '.taskDefinition.containerDefinitions[0].image = env.IMAGE_URI | .taskDefinition' task-definition.json \
-            | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > new-task-definition.json
+          # Update Task Definition with the new image
+          jq '.taskDefinition.containerDefinitions[0].image = "'$REPOSITORY_URI:$IMAGE_TAG'"' aendyear-task-definition.json \
+            | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredBy, .registeredAt)' \
+            > new-task-definition.json
 
+          # Register the updated Task Definition
           aws ecs register-task-definition \
             --cli-input-json file://new-task-definition.json \
-            --region $AWS_REGION
+            --region ap-northeast-2
 
-      # 8. ECS 서비스 업데이트
-      - name: Update ECS Service
-        env:
-          AWS_REGION: ap-northeast-2
-        run: |
+          # Update ECS Service
           aws ecs update-service \
             --cluster AendyearCluster \
-            --service komawotsir-aendyear \
+            --service komawotsir-front \
             --task-definition AendyearTask \
-            --region $AWS_REGION \
-            --force-new-deployment
+            --force-new-deployment \
+            --region ap-northeast-2

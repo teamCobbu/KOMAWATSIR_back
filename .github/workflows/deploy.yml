@@ -55,20 +55,25 @@ jobs:
           AWS_REGION: ap-northeast-2
           IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/aendyear-back:${{ env.IMAGE_TAG }}
         run: |
+          # 기존 Task Definition을 가져옴
           aws ecs describe-task-definition \
             --task-definition AendyearTask \
             --region $AWS_REGION > task-definition.json
 
+          # 새 이미지 URI를 Task Definition에 반영
           jq '.taskDefinition.containerDefinitions[0].image = env.IMAGE_URI | .taskDefinition' task-definition.json \
             | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > new-task-definition.json
 
-          # 새 Task Definition 등록 후 revision 번호 확인
+          # 새 Task Definition 등록 후 revision 번호 추출
           TASK_DEFINITION_REVISION=$(aws ecs register-task-definition \
             --cli-input-json file://new-task-definition.json \
             --region $AWS_REGION \
             --query 'taskDefinition.revision' --output text)
 
           echo "New Task Definition revision: $TASK_DEFINITION_REVISION"
+          
+          # revision 값이 제대로 출력되는지 확인하기 위해 로그 출력
+          echo "TASK_DEFINITION_REVISION: $TASK_DEFINITION_REVISION"
 
       # 8. ECS 서비스 업데이트
       - name: Update ECS Service

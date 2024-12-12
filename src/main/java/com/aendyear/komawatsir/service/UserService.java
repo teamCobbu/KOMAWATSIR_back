@@ -72,10 +72,10 @@ public class UserService {
     private void addJwtToCookie(HttpServletResponse response, String jwtToken) {
         Cookie cookie = new Cookie("JWT", jwtToken);
         cookie.setHttpOnly(true);
-//        cookie.setSecure(true);    // HTTPS에서만 (SSL인증)
+        cookie.setSecure(true);    // HTTPS에서만 (SSL인증)
         cookie.setPath("/");
         cookie.setMaxAge(3600);
-//        cookie.setDomain("Komawatsir.com");  // 쿠키가 적용될 도메인
+        cookie.setDomain("xn--299au8vhphgpd.com");  // 쿠키가 적용될 도메인
         response.addCookie(cookie);
     }
 

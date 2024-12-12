@@ -40,7 +40,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.addAllowedOrigin("http://localhost:3000");  // React 앱 URL 허용
+        corsConfig.addAllowedOrigin("https://xn--299au8vhphgpd.com");  // React 앱 URL 허용
         corsConfig.setAllowCredentials(true);
         corsConfig.addAllowedMethod("*");  // 모든 HTTP 메서드 허용
         corsConfig.addAllowedHeader("*");  // 모든 HTTP 헤더 허용

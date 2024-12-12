@@ -17,7 +17,12 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'temurin' # JDK 배포판 설정 (temurin, zulu 등)
+          distribution: 'temurin'
+
+      - name: Run tests
+        env:
+          SPRING_PROFILES_ACTIVE: test
+        run: ./gradlew test
 
       - name: Build JAR file
         run: |

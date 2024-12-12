@@ -44,7 +44,6 @@ jobs:
           ECR_REPOSITORY: aendyear-back
         run: |
           IMAGE_TAG=$(date +%Y%m%d%H%M%S)
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG"
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REPOSITORY:$IMAGE_TAG $IMAGE_URI
@@ -54,7 +53,7 @@ jobs:
       - name: Register new Task Definition
         env:
           AWS_REGION: ap-northeast-2
-          IMAGE_URI: ${{ env.IMAGE_URI }}
+          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/aendyear-back:${{ env.IMAGE_TAG }}
         run: |
           aws ecs describe-task-definition \
             --task-definition AendyearTask \
@@ -63,13 +62,9 @@ jobs:
           jq '.taskDefinition.containerDefinitions[0].image = env.IMAGE_URI | .taskDefinition' task-definition.json \
             | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > new-task-definition.json
 
-          echo "Generated new Task Definition:"
-          cat new-task-definition.json
-
           aws ecs register-task-definition \
             --cli-input-json file://new-task-definition.json \
             --region $AWS_REGION
-      
 
       # 8. ECS 서비스 업데이트
       - name: Update ECS Service

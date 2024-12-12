@@ -62,7 +62,7 @@ jobs:
 
           # 새 Task Definition 생성
           jq '.taskDefinition.containerDefinitions[0].image = env.IMAGE_URI | .taskDefinition' task-definition.json \
-            | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities)' > new-task-definition.json
+            | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > new-task-definition.json
 
           # 새 Task Definition 등록
           aws ecs register-task-definition \

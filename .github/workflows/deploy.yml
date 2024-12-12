@@ -10,19 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. JDK 설치
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
+      # 3. Gradle 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # AWS 자격 증명 설정
+      # 4. AWS 자격 증명 설정
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -30,16 +33,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # Amazon ECR 로그인
+      # 5. Amazon ECR 로그인
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Docker 이미지 빌드 및 푸시
+      # 6. Docker 이미지 빌드 및 푸시
       - name: Build, Tag, and Push Docker image
         env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_REGION: ap-northeast-2
           ECR_REPOSITORY: aendyear-back
         run: |
           IMAGE_TAG=$(date +%Y%m%d%H%M%S)
@@ -48,13 +49,34 @@ jobs:
           docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
           docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # ECS 서비스 업데이트
+      # 7. 새 Task Definition 등록
+      - name: Register new Task Definition
+        env:
+          AWS_REGION: ap-northeast-2
+          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/aendyear-back:$IMAGE_TAG
+        run: |
+          # 현재 Task Definition 가져오기
+          aws ecs describe-task-definition \
+            --task-definition komawatsir-task \
+            --region $AWS_REGION > task-definition.json
+
+          # 새 Task Definition 생성
+          jq '.taskDefinition.containerDefinitions[0].image = env.IMAGE_URI' task-definition.json \
+            | jq 'del(.taskDefinition.taskDefinitionArn, .taskDefinition.revision, .taskDefinition.status, .taskDefinition.requiresAttributes, .taskDefinition.compatibilities)' > new-task-definition.json
+
+          # 새 Task Definition 등록
+          aws ecs register-task-definition \
+            --cli-input-json file://new-task-definition.json \
+            --region $AWS_REGION
+
+      # 8. ECS 서비스 업데이트
       - name: Update ECS Service
         env:
-          AWS_REGION: "ap-northeast-2"
+          AWS_REGION: ap-northeast-2
         run: |
           aws ecs update-service \
-          --cluster AendyearCluster \
-          --service komawatsir-aendyear \
-          --force-new-deployment \
-          --image "${{ steps.login-ecr.outputs.registry }}/aendyear-back:$IMAGE_TAG"
+            --cluster AendyearCluster \
+            --service komawatsir-aendyear \
+            --task-definition komawatsir-task \
+            --region $AWS_REGION \
+            --force-new-deployment

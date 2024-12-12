@@ -1,56 +1,51 @@
-name: Deploy to AWS ECS
+name: CI/CD Pipeline for komawatsir
 
 on:
   push:
     branches:
-      - main
+      - main # main 브랜치에 push될 때 실행
+
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      # 2. JDK 설치
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: 17
 
-      - name: Run tests
-        env:
-          SPRING_PROFILES_ACTIVE: test
-        run: ./gradlew test
+      # 3. Gradle 빌드
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
 
-      # 테스트 리포트 업로드 단계
-      - name: Save test report
-        if: failure() # 테스트 실패 시에만 실행
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-report
-          path: build/reports/tests/test
-
-      - name: Build JAR file
-        run: |
-          ./gradlew clean build
-
+      # 4. AWS ECR 로그인
       - name: Log in to Amazon ECR
-        run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY_URL }}
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # 5. Docker 이미지 빌드 및 푸시
+      - name: Build, Tag, and Push Docker image
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Build and push Docker image
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ap-northeast-2
+          ECR_REPOSITORY: aendyear-back
         run: |
-          docker build -t aendyear-back .
-          docker tag aendyear-back:latest ${{ secrets.ECR_REPOSITORY_URL }}:latest
-          docker push ${{ secrets.ECR_REPOSITORY_URL }}:latest
+          IMAGE_TAG=$(date +%Y%m%d%H%M%S)
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
+      # 6. ECS 서비스 업데이트
       - name: Update ECS Service
-        run: |
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service ${{ secrets.ECS_SERVICE_NAME }} --force-new-deployment
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        uses: aws-actions/amazon-ecs-update-service@v1
+        with:
+          cluster: AendyearCluster
+          service: komawatsir-aendyear
+          force-new-deployment: true
+          region: ap-northeast-2

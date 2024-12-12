@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for komawotsir
+name: CI/CD Pipeline for komawatsir
 
 on:
   push:
@@ -62,18 +62,23 @@ jobs:
           jq '.taskDefinition.containerDefinitions[0].image = env.IMAGE_URI | .taskDefinition' task-definition.json \
             | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > new-task-definition.json
 
-          aws ecs register-task-definition \
+          # 새 Task Definition 등록 후 revision 번호 확인
+          TASK_DEFINITION_REVISION=$(aws ecs register-task-definition \
             --cli-input-json file://new-task-definition.json \
-            --region $AWS_REGION
+            --region $AWS_REGION \
+            --query 'taskDefinition.revision' --output text)
+
+          echo "New Task Definition revision: $TASK_DEFINITION_REVISION"
 
       # 8. ECS 서비스 업데이트
       - name: Update ECS Service
         env:
           AWS_REGION: ap-northeast-2
         run: |
+          # 새 revision을 사용하여 ECS 서비스 업데이트
           aws ecs update-service \
             --cluster AendyearCluster \
             --service komawotsir-aendyear \
-            --task-definition AendyearTask \
+            --task-definition AendyearTask:$TASK_DEFINITION_REVISION \
             --region $AWS_REGION \
             --force-new-deployment

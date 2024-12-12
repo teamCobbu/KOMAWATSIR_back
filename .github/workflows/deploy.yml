@@ -81,6 +81,12 @@ jobs:
           AWS_REGION: ap-northeast-2
         run: |
           # 새 revision을 사용하여 ECS 서비스 업데이트
+          if [[ -z "$TASK_DEFINITION_REVISION" ]]; then
+            echo "Error: Revision number not found!"
+            exit 1
+          fi
+
+          # ECS 서비스 업데이트
           aws ecs update-service \
             --cluster AendyearCluster \
             --service komawotsir-aendyear \

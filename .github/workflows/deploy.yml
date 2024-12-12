@@ -41,11 +41,23 @@ jobs:
           docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
           docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # 6. ECS 서비스 업데이트
+      # 6. AWS CLI 설치
+      - name: Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          
+
+      # 7. ECS 서비스 업데이트
       - name: Update ECS Service
-        uses: aws-actions/amazon-ecs-update-service@v1
-        with:
-          cluster: AendyearCluster
-          service: komawatsir-aendyear
-          force-new-deployment: true
-          region: ap-northeast-2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-northeast-2
+          IMAGE_TAG: ${{ steps.login-ecr.outputs.registry }}/komawatsir:$IMAGE_TAG
+        run: |
+          aws ecs update-service \
+          --cluster AendyearCluster \
+          --service komawatsir-aendyear \
+          --force-new-deployment

@@ -61,8 +61,8 @@ jobs:
             --region $AWS_REGION > task-definition.json
 
           # 새 Task Definition 생성
-          jq '.taskDefinition.containerDefinitions[0].image = env.IMAGE_URI' task-definition.json \
-            | jq 'del(.taskDefinition.taskDefinitionArn, .taskDefinition.revision, .taskDefinition.status, .taskDefinition.requiresAttributes, .taskDefinition.compatibilities)' > new-task-definition.json
+          jq '.taskDefinition.containerDefinitions[0].image = env.IMAGE_URI | .taskDefinition' task-definition.json \
+            | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities)' > new-task-definition.json
 
           # 새 Task Definition 등록
           aws ecs register-task-definition \
@@ -77,6 +77,6 @@ jobs:
           aws ecs update-service \
             --cluster AendyearCluster \
             --service komawatsir-aendyear \
-            --task-definition komawatsir-task \
+            --task-definition AendyearTask \
             --region $AWS_REGION \
             --force-new-deployment

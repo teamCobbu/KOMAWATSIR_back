@@ -49,8 +49,8 @@ jobs:
           docker tag $ECR_REPOSITORY:$IMAGE_TAG $IMAGE_URI
           docker push $IMAGE_URI
 
-      # 7. 새 Task Definition 등록
-      - name: Register new Task Definition
+      # 7. Task Definition을 새로운 이미지로 업데이트
+      - name: Update Task Definition with new image
         env:
           AWS_REGION: ap-northeast-2
           IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/aendyear-back:latest
@@ -60,11 +60,11 @@ jobs:
             --task-definition AendyearTask \
             --region $AWS_REGION > task-definition.json
 
-          # 새 이미지 URI를 Task Definition에 반영
+          # 새로운 이미지 URI를 Task Definition에 반영
           jq '.taskDefinition.containerDefinitions[0].image = env.IMAGE_URI | .taskDefinition' task-definition.json \
             | jq 'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' > new-task-definition.json
 
-          # 새 Task Definition 등록
+          # 새로운 Task Definition 등록
           aws ecs register-task-definition \
             --cli-input-json file://new-task-definition.json \
             --region $AWS_REGION
@@ -74,10 +74,10 @@ jobs:
         env:
           AWS_REGION: ap-northeast-2
         run: |
-          # ECS 서비스 업데이트
+          # ECS 서비스 업데이트 (revision 없이 image tag로 업데이트)
           aws ecs update-service \
             --cluster AendyearCluster \
             --service komawotsir-aendyear \
-            --task-definition AendyearTask:latest \
+            --task-definition AendyearTask \
             --region $AWS_REGION \
             --force-new-deployment

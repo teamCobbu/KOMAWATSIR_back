@@ -3,33 +3,29 @@ name: CI/CD Pipeline for komawatsir
 on:
   push:
     branches:
-      - main # main 브랜치에 push될 때 실행
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. JDK 설치
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: '17'
+          distribution: 'temurin'
 
-      # 3. Gradle 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
-      # 4. AWS ECR 로그인
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # 5. Docker 이미지 빌드 및 푸시
       - name: Build, Tag, and Push Docker image
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
@@ -37,27 +33,24 @@ jobs:
           ECR_REPOSITORY: aendyear-back
         run: |
           IMAGE_TAG=$(date +%Y%m%d%H%M%S)
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
           docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # 6. AWS CLI 설치
       - name: Install AWS CLI
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
-          
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
 
-      # 7. ECS 서비스 업데이트
       - name: Update ECS Service
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ap-northeast-2
-          IMAGE_TAG: ${{ steps.login-ecr.outputs.registry }}/komawatsir:$IMAGE_TAG
+          AWS_REGION: "ap-northeast-2"
         run: |
           aws ecs update-service \
           --cluster AendyearCluster \
           --service komawatsir-aendyear \
-          --force-new-deployment
+          --force-new-deployment \
+          --image "${{ steps.login-ecr.outputs.registry }}/aendyear-back:$IMAGE_TAG"

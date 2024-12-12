@@ -45,6 +45,7 @@ jobs:
         run: |
           IMAGE_TAG=latest
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "Pushing Docker Image: $IMAGE_URI"
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REPOSITORY:$IMAGE_TAG $IMAGE_URI
           docker push $IMAGE_URI
@@ -53,7 +54,7 @@ jobs:
       - name: Register new Task Definition
         env:
           AWS_REGION: ap-northeast-2
-          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/aendyear-back:${{ env.IMAGE_TAG }}
+          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/aendyear-back:latest
         run: |
           aws ecs describe-task-definition \
             --task-definition AendyearTask \

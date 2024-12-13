@@ -80,4 +80,3 @@ jobs:
             --service komawotsir-aendyear \
             --task-definition AendyearTask \
             --region $AWS_REGION \
-            --force-new-deployment

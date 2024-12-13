@@ -4,9 +4,7 @@ import com.aendyear.komawatsir.dto.PostDesignDto;
 import com.aendyear.komawatsir.dto.PostDto;
 import com.aendyear.komawatsir.entity.*;
 import com.aendyear.komawatsir.repository.*;
-import com.aendyear.komawatsir.type.ImageCategory;
 import com.aendyear.komawatsir.type.PostStatus;
-import com.aendyear.komawatsir.type.SourceType;
 import jakarta.transaction.Transactional;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

@@ -4,15 +4,26 @@ import com.aendyear.komawatsir.dto.PostDesignDto;
 import com.aendyear.komawatsir.dto.PostDto;
 import com.aendyear.komawatsir.entity.*;
 import com.aendyear.komawatsir.repository.*;
+import com.aendyear.komawatsir.type.ImageCategory;
 import com.aendyear.komawatsir.type.PostStatus;
+import com.aendyear.komawatsir.type.SourceType;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import jakarta.transaction.Transactional;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +57,11 @@ public class PostService {
 
     @Value("${openai.api-key}")
     private String openaiApiKey;
+
+    private AmazonS3Client amazonS3Client;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
 
     // 연도별 받은 연하장
@@ -224,6 +240,29 @@ public class PostService {
         return postDesignDto;
     }
 
+    public String savePostImage(Integer postId, MultipartFile image){
+        Post post = postRepository.findById(postId).get();
+        post.setImageUrl(uploadImage(postId, image));
+        postRepository.save(post);
+        PostDto dto = new PostDto();
+        return uploadImage(postId, image);
+    }
+
+    public String uploadImage(Integer postId, MultipartFile file) {
+        try {
+            String fileName = "test/" + file.getOriginalFilename();  // 폴더 경로 포함
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(file.getContentType());
+            metadata.setContentLength(file.getSize());
+
+            // S3에 파일을 업로드
+            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+
+            return amazonS3Client.getUrl(bucket, fileName).toString(); // 업로드된 파일의 URL
+        } catch (IOException e) {
+            return e.toString();
+        }
+    }
 
     // todo: 테스트용 (추후 삭제)
     // 연도별 받은 연하장

@@ -23,7 +23,11 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     public static final int SC_TOO_MANY_REQUESTS = 429;
     private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
-    private static final List<String> BLOCKED_USER_AGENTS = List.of("BadBot", "MaliciousCrawler");
+    private static final List<String> BLOCKED_USER_AGENTS = List.of("BadBot"
+            ,"MaliciousCrawler"
+            ,"PostmanRuntime"
+            ,"curl"
+            ,"wget");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

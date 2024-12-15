@@ -6,7 +6,6 @@ import com.aendyear.komawatsir.dto.ReceiverQuestionDto;
 import com.aendyear.komawatsir.entity.Receiver;
 import com.aendyear.komawatsir.service.ReceiverService;
 import io.swagger.v3.oas.annotations.Operation;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

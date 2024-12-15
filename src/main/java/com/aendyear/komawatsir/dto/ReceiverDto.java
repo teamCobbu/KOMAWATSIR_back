@@ -1,9 +1,7 @@
 package com.aendyear.komawatsir.dto;
 
 import com.aendyear.komawatsir.type.PostStatus;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 

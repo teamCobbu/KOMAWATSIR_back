@@ -1,7 +1,6 @@
 package com.aendyear.komawatsir.repository.dsl;
 
 import com.aendyear.komawatsir.dto.ReceiverDto;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

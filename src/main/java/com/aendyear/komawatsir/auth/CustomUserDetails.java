@@ -1,7 +1,6 @@
 package com.aendyear.komawatsir.auth;
 
 import com.aendyear.komawatsir.dto.UserDto;
-import com.aendyear.komawatsir.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

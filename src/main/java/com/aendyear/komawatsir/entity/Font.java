@@ -1,7 +1,5 @@
 package com.aendyear.komawatsir.entity;
 
-import com.aendyear.komawatsir.type.FontColor;
-import com.aendyear.komawatsir.type.FontSize;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
+@Order(2)
 public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토큰을 검증
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -63,7 +65,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
         return requestURI.equals("/api/users/kakao/login-test") ||
                 requestURI.equals("/api/users/kakao/loginPage") ||
                 requestURI.equals("/api/users/logout") ||
-                requestURI.equals("/**") ||
                 (httpMethod.equals("POST") && requestURI.matches("^/api/users/\\d+/receivers$")) ||
                 (httpMethod.equals("GET")) && requestURI.equals("/api/inquiry/validate/url");
     }

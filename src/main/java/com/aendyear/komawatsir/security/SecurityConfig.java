@@ -1,5 +1,7 @@
-package com.aendyear.komawatsir.auth;
+package com.aendyear.komawatsir.security;
 
+import com.aendyear.komawatsir.auth.JwtAuthenticationFilter;
+import com.aendyear.komawatsir.auth.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,12 +33,9 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                         .requestMatchers("/api/users/logout").permitAll()
                         .requestMatchers("/api/inquiry/validate/url").permitAll()
                         .requestMatchers("/api/users/*/receivers").permitAll()
-                        .anyRequest().authenticated())
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-
+                        .anyRequest().authenticated());
         return http.build();
     }
-
 
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {

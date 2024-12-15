@@ -43,12 +43,12 @@ public class DesignService {
     }
 
     // 디자인 추가
-    // todo: 초기값 결정
+    // todo:DB 재설정 후 기본값 다시 설정
     public Design addDesign(Integer userId) {
         Design design = Design.builder()
                 .userId(userId)
-                .backgroundId(20)
-                .thumbnailId(43)
+                .backgroundId(1)
+                .thumbnailId(2)
                 .fontId(1)
                 .fontColor(FontColor.white)
                 .fontSize(FontSize.defaultSize)

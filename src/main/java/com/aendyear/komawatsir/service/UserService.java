@@ -38,7 +38,7 @@ public class UserService {
 
     // ****  회원 가입 및 로그인, 로그아웃  *****
     // 카카오 로그인
-    public UserDto getKakaoLogin(String code, String clientId, String redirectUri, HttpServletRequest request,HttpServletResponse response) {
+    public UserDto getKakaoLogin(String code, String clientId, String redirectUri, HttpServletRequest request, HttpServletResponse response) {
         String accessToken = parseAccessToken(kakaoAuthService.getAccessToken(code, clientId, redirectUri));
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
@@ -94,11 +94,13 @@ public class UserService {
 
     // 사용자 정보를 데이터베이스에서 조회하거나, 없으면 새로 저장
     private User findOrSaveUser(User user) {
-        return userRepository.findByKakaoId(user.getKakaoId()).orElseGet(() -> userRepository.save(user));
+        Optional<User> checkUser = userRepository.findByKakaoId(user.getKakaoId());
+        checkUser.ifPresent(u -> u.setIsSmsAllowed(u.getIsSmsAllowed() != null && u.getIsSmsAllowed()));
+        return userRepository.save(user);
     }
 
     //로그아웃
-    public boolean logout( String accessToken, HttpServletRequest request, HttpServletResponse response) {
+    public boolean logout(String accessToken, HttpServletRequest request, HttpServletResponse response) {
         if (!kakaoAuthService.logout(accessToken)) return false;
         request.getSession().invalidate();
         deleteCookie(response, "JWT");
@@ -180,7 +182,7 @@ public class UserService {
 
     // 회원 탈퇴
     @Transactional
-    public boolean deleteUser(Integer id,String accessToken, String clientId) {
+    public boolean deleteUser(Integer id, String accessToken, String clientId) {
         Optional<User> userOpt = userRepository.findById(id);
         // 카카오 탈퇴 처리
         kakaoAuthService.unlinkUser(accessToken);
@@ -203,7 +205,7 @@ public class UserService {
         boolean b = false;
 
         String token = jwtTokenProvider.resolveToken(request);
-        if(jwtTokenProvider.validateToken(token)) {
+        if (jwtTokenProvider.validateToken(token)) {
             String kakaoId = jwtTokenProvider.getUserId(token);
             Optional<User> userInfo = userRepository.findByKakaoId(kakaoId);
             if (userInfo.isPresent()) {

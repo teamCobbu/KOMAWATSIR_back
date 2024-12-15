@@ -38,20 +38,15 @@ public class FileUploadController {
     @PostMapping
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("userId") Integer userId) {
         try {
-            String fileName = "test/" + file.getOriginalFilename();  // 폴더 경로 포함
+            String fileName = "test/" + file.getOriginalFilename(); // 폴더 경로 포함
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
 
-            // S3에 파일을 업로드
-            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-
-            // 업로드된 파일의 URL을 가져옵니다.
-            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata); // S3에 파일을 업로드
+            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString(); // 업로드된 파일의 URL
 
             String customNo = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
-
-
             imageRepository.save(Image.builder()
                     .category(ImageCategory.CUSTOM)
                     .name(userId + "_" + customNo)

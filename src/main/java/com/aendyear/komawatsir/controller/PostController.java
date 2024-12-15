@@ -81,6 +81,12 @@ public class PostController {
         return ResponseEntity.ok(postService.getCardsByUser(receiverUserId));
     }
 
+    @PutMapping("/posts/{postId}")
+    @Operation(summary = "show card by receiver", description = "연하장 이미지 처리")
+    public ResponseEntity<String> savePostImage(@PathVariable Integer postID, @RequestParam("image") MultipartFile image) {
+        return ResponseEntity.ok(postService.savePostImage(postID, image));
+    }
+
     // todo: 테스트용 -> 추후 삭제
     @GetMapping("/posts/all")
     @Operation(summary = "load post design", description = "포스트 디자인 가져오기")

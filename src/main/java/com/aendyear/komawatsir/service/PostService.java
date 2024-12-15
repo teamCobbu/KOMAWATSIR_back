@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -273,7 +274,20 @@ public class PostService {
             Image image = imageRepository.findById(design.getBackgroundId()).get();
 
             // 1. 배경 이미지 로드
-            BufferedImage backgroundImage = ImageIO.read(new File(image.getPic()));
+            BufferedImage backgroundImage;
+                    //= ImageIO.read(new File(image.getPic()));
+            try {
+                URL imageUrl = new URL(image.getPic());
+                System.out.println("Loading image from URL: " + image.getPic());
+                backgroundImage = ImageIO.read(imageUrl);
+
+                if (backgroundImage == null) {
+                    throw new RuntimeException("Failed to read image from URL: " + image.getPic());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Error occurred while loading background image from URL: " + image.getPic(), e);
+            }
 
             // 2. 새로운 이미지를 생성 (배경 크기와 동일하게)
             BufferedImage newImage = new BufferedImage(
@@ -306,8 +320,8 @@ public class PostService {
             // 4. 새로운 이미지 저장
             String path = uploadBufferedImageToS3(postId, newImage);
 
-            return "path";
-        } catch (IOException e) {
+            return path;
+        } catch (io.jsonwebtoken.io.IOException e) {
             e.printStackTrace();
             return "이미지 생성 중 오류가 발생했습니다.";
         }

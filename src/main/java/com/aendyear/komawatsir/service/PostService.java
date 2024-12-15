@@ -266,17 +266,26 @@ public class PostService {
 
     public String generateImageWithText(Integer postId) {
         try {
+            System.out.println("Step 1: Fetching post details for postId: " + postId);
             Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
             Integer userId = post.getSenderId();
+
+            System.out.println("Step 2: Fetching design for userId: " + userId + ", year: " + nextYear);
             Design design = designRepository.findByUserIdAndYear(userId, nextYear)
                     .orElseThrow(() -> new RuntimeException("Design not found"));
+
+            System.out.println("Step 3: Fetching background image details for design backgroundId: " + design.getBackgroundId());
             Image image = imageRepository.findById(design.getBackgroundId())
                     .orElseThrow(() -> new RuntimeException("Image not found"));
 
             // 1. 배경 이미지 로드
+            System.out.println("Step 4: Loading background image from URL: " + image.getPic());
             BufferedImage backgroundImage = loadImageFromURL(image.getPic());
+            System.out.println("Background image loaded successfully.");
 
-            // 2. 새로운 이미지를 생성 (배경 크기와 동일하게)
+            // 2. 새로운 이미지를 생성
+            System.out.println("Step 5: Creating new image canvas with dimensions: " +
+                    backgroundImage.getWidth() + "x" + backgroundImage.getHeight());
             BufferedImage newImage = new BufferedImage(
                     backgroundImage.getWidth(),
                     backgroundImage.getHeight(),
@@ -284,16 +293,17 @@ public class PostService {
             );
 
             // 3. Graphics2D를 이용하여 텍스트 추가
+            System.out.println("Step 6: Drawing text on the new image.");
             Graphics2D graphics = newImage.createGraphics();
 
             // 배경 이미지 그리기
             graphics.drawImage(backgroundImage, 0, 0, null);
 
             // 텍스트 스타일 설정
-            graphics.setColor(Color.WHITE); // 텍스트 색상
-            graphics.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 48)); // 폰트 및 크기
+            graphics.setColor(Color.WHITE);
+            graphics.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 48));
 
-            // 텍스트 위치 설정 (이미지 중앙에 텍스트 배치)
+            // 텍스트 위치 설정
             FontMetrics fontMetrics = graphics.getFontMetrics();
             int x = (backgroundImage.getWidth() - fontMetrics.stringWidth(post.getContents())) / 2;
             int y = backgroundImage.getHeight() / 2;
@@ -303,9 +313,12 @@ public class PostService {
 
             // Graphics 종료
             graphics.dispose();
+            System.out.println("Text added successfully.");
 
             // 4. 새로운 이미지 저장
+            System.out.println("Step 7: Uploading the generated image to S3.");
             String path = uploadBufferedImageToS3(postId, newImage);
+            System.out.println("Generated image uploaded successfully to S3: " + path);
 
             return path;
         } catch (IOException e) {
@@ -315,6 +328,7 @@ public class PostService {
     }
 
     private BufferedImage loadImageFromURL(String urlString) throws IOException {
+        System.out.println("Attempting to load image from URL: " + urlString);
         try {
             URL imageUrl = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) imageUrl.openConnection();
@@ -322,6 +336,8 @@ public class PostService {
             connection.connect();
 
             int responseCode = connection.getResponseCode();
+            System.out.println("Response code for URL: " + urlString + " is " + responseCode);
+
             if (responseCode == 403) {
                 throw new RuntimeException("Access denied: 403 Forbidden for URL: " + urlString);
             }
@@ -331,16 +347,18 @@ public class PostService {
                 if (image == null) {
                     throw new RuntimeException("Failed to read image from URL: " + urlString);
                 }
+                System.out.println("Image loaded successfully from URL: " + urlString);
                 return image;
             }
         } catch (IOException e) {
-            throw new IOException("Error occurred while loading background image from URL: " + urlString, e);
+            System.err.println("Error occurred while loading background image from URL: " + urlString);
+            throw new IOException("Error occurred while loading background image", e);
         }
     }
 
     public String uploadBufferedImageToS3(Integer postId, BufferedImage image) {
         try {
-            // BufferedImage를 ByteArrayOutputStream으로 변환
+            System.out.println("Converting BufferedImage to byte array for S3 upload.");
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(image, "png", os);
             byte[] imageBytes = os.toByteArray();
@@ -355,18 +373,23 @@ public class PostService {
 
             // S3 파일 경로 설정
             String fileName = "generated/" + postId + "_" + System.currentTimeMillis() + ".png";
+            System.out.println("Uploading image to S3 with fileName: " + fileName);
 
             // S3에 파일 업로드
             amazonS3Client.putObject(bucket, fileName, inputStream, metadata);
 
-            // S3 URL 반환
-            return amazonS3Client.getUrl(bucket, fileName).toString();
+            String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+            System.out.println("Image successfully uploaded to S3. URL: " + fileUrl);
+
+            return fileUrl;
 
         } catch (IOException e) {
+            System.err.println("Error occurred during S3 upload.");
             e.printStackTrace();
             return "S3 업로드 중 오류가 발생했습니다.";
         }
     }
+
 
 
 

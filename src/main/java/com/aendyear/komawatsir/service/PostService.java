@@ -20,10 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -268,26 +266,15 @@ public class PostService {
 
     public String generateImageWithText(Integer postId) {
         try {
-            Post post = postRepository.findById(postId).get();
+            Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
             Integer userId = post.getSenderId();
-            Design design =  designRepository.findByUserIdAndYear(userId, nextYear).get();
-            Image image = imageRepository.findById(design.getBackgroundId()).get();
+            Design design = designRepository.findByUserIdAndYear(userId, nextYear)
+                    .orElseThrow(() -> new RuntimeException("Design not found"));
+            Image image = imageRepository.findById(design.getBackgroundId())
+                    .orElseThrow(() -> new RuntimeException("Image not found"));
 
             // 1. 배경 이미지 로드
-            BufferedImage backgroundImage;
-                    //= ImageIO.read(new File(image.getPic()));
-            try {
-                URL imageUrl = new URL(image.getPic());
-                System.out.println("Loading image from URL: " + image.getPic());
-                backgroundImage = ImageIO.read(imageUrl);
-
-                if (backgroundImage == null) {
-                    throw new RuntimeException("Failed to read image from URL: " + image.getPic());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Error occurred while loading background image from URL: " + image.getPic(), e);
-            }
+            BufferedImage backgroundImage = loadImageFromURL(image.getPic());
 
             // 2. 새로운 이미지를 생성 (배경 크기와 동일하게)
             BufferedImage newImage = new BufferedImage(
@@ -321,9 +308,33 @@ public class PostService {
             String path = uploadBufferedImageToS3(postId, newImage);
 
             return path;
-        } catch (io.jsonwebtoken.io.IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return "이미지 생성 중 오류가 발생했습니다.";
+        }
+    }
+
+    private BufferedImage loadImageFromURL(String urlString) throws IOException {
+        try {
+            URL imageUrl = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) imageUrl.openConnection();
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+            connection.connect();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 403) {
+                throw new RuntimeException("Access denied: 403 Forbidden for URL: " + urlString);
+            }
+
+            try (InputStream inputStream = connection.getInputStream()) {
+                BufferedImage image = ImageIO.read(inputStream);
+                if (image == null) {
+                    throw new RuntimeException("Failed to read image from URL: " + urlString);
+                }
+                return image;
+            }
+        } catch (IOException e) {
+            throw new IOException("Error occurred while loading background image from URL: " + urlString, e);
         }
     }
 
@@ -349,7 +360,6 @@ public class PostService {
             amazonS3Client.putObject(bucket, fileName, inputStream, metadata);
 
             // S3 URL 반환
-            System.out.println(amazonS3Client.getUrl(bucket, fileName).toString());
             return amazonS3Client.getUrl(bucket, fileName).toString();
 
         } catch (IOException e) {
@@ -357,6 +367,7 @@ public class PostService {
             return "S3 업로드 중 오류가 발생했습니다.";
         }
     }
+
 
 
     // todo: 테스트용 (추후 삭제)

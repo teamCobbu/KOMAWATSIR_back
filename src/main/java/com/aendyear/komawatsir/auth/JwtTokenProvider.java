@@ -65,6 +65,7 @@ public class JwtTokenProvider {
             if (expiration == null || expiration.before(new Date())){
                 throw new JwtException("token has expired");
             }
+            System.out.println("JwtTokenProvider: Token is valid. Claims=" + claims);
             return true;
         } catch (ExpiredJwtException e) {
             throw new JwtException("Token expired", e);
@@ -88,12 +89,15 @@ public class JwtTokenProvider {
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
                     if ("JWT".equals(cookie.getName())) {
+                        System.out.println("JwtTokenProvider: Found JWT in cookie. Token=" + cookie.getValue());
                         return cookie.getValue();  // 쿠키에서 JWT 값을 반환
                     }
                 }
             }
+            System.out.println("JwtTokenProvider: No JWT found in cookies.");
             return null;
         } catch (Exception e) {
+            System.out.println("JwtTokenProvider: Failed to resolve token."+ e);
             throw new RuntimeException("Failed to resolve token", e);  // 예외 메시지에 추가 정보를 포함
         }
     }

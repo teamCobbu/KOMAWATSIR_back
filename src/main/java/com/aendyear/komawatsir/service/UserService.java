@@ -114,6 +114,10 @@ public class UserService {
         System.out.println("getIsSmsAllowed : " + user.getIsSmsAllowed());
         Optional<User> checkUser = userRepository.findByKakaoId(user.getKakaoId());
         if(checkUser.isEmpty()) {
+           user.setId(checkUser.get().getId());
+           user.setTel(checkUser.get().getTel());
+           user.setIsSmsAllowed(checkUser.get().getIsSmsAllowed());
+        } else {
             user.setIsSmsAllowed(false);
         }
         return userRepository.save(user);

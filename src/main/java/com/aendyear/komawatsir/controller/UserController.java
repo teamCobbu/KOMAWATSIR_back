@@ -49,7 +49,6 @@ public class UserController {
     @GetMapping("/kakao/login-test")
     @Operation(summary = "Handle Kakao login", description = "Processes Kakao login using authorization code")
     public ResponseEntity<UserDto> getKakaoLogin(@RequestParam String code, HttpServletRequest request,HttpServletResponse response) {
-        System.out.println("getKakaoLogin test : " + code);
         try {
             UserDto userDto = userService.getKakaoLogin(code, clientId, redirectUri, request,response);
             return ResponseEntity.ok(userDto);

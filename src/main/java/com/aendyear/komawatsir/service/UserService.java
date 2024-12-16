@@ -44,6 +44,7 @@ public class UserService {
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
         }
+
         User userInfo = getUserInfoFromKakao(accessToken);
         System.out.println("Kakao User Info: " + userInfo);
         if (userInfo == null) {
@@ -106,11 +107,15 @@ public class UserService {
 
     // 사용자 정보를 데이터베이스에서 조회하거나, 없으면 새로 저장
     private User findOrSaveUser(User user) {
-        System.out.print("findOrSaveUser-1");
+        System.out.println("getId : " + user.getId());
+        System.out.println("getTel : " + user.getTel());
+        System.out.println("getName : " + user.getName());
+        System.out.println("getKakaoId : " + user.getKakaoId());
+        System.out.println("getIsSmsAllowed : " + user.getIsSmsAllowed());
         Optional<User> checkUser = userRepository.findByKakaoId(user.getKakaoId());
-        System.out.print("findOrSaveUser-2");
-        checkUser.ifPresent(u -> u.setIsSmsAllowed(u.getIsSmsAllowed() != null && u.getIsSmsAllowed()));
-        System.out.print("findOrSaveUser-3");
+        if(checkUser.isEmpty()) {
+            user.setIsSmsAllowed(false);
+        }
         return userRepository.save(user);
     }
 

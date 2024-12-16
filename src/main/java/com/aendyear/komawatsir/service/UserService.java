@@ -69,7 +69,7 @@ public class UserService {
     //인증된 사용자
     public Integer getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
+        System.out.println("authentication = " + authentication);
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new AccessDeniedException("인증되지 않은 사용자입니다.");
         }

@@ -40,9 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT ÌÜ†ÌÅ
             }
 
             if (requestURI.startsWith("/actuator")) {
+                System.out.println("JwtAuthenticationFilter: actuator URI=" + requestURI);
                 filterChain.doFilter(request, response);
                 return;
             }
+            System.out.println("validate before");
 
             if (requestURI.startsWith("/api/users/token/validate")) {
                 filterChain.doFilter(request, response);

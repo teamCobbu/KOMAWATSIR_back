@@ -40,13 +40,17 @@ public class UserService {
     // 카카오 로그인
     public UserDto getKakaoLogin(String code, String clientId, String redirectUri, HttpServletRequest request, HttpServletResponse response) {
         String accessToken = parseAccessToken(kakaoAuthService.getAccessToken(code, clientId, redirectUri));
+        System.out.println("US.accessToken = " + accessToken);
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
         }
         User user = findOrSaveUser(getUserInfoFromKakao(accessToken));
+        System.out.println("US.user = " + user);
         UserDto userDto = new UserDto(user);
+        System.out.println("US.userDto = " + userDto);
 
         String jwtToken = jwtTokenProvider.createToken(user.getKakaoId());
+        System.out.println("US.jwtToken = " + jwtToken);
         addJwtToCookie(response, jwtToken);
 
         request.getSession().setAttribute("kakao_access_token", accessToken);
@@ -89,6 +93,7 @@ public class UserService {
     }
 
     private User getUserInfoFromKakao(String accessToken) {
+        System.out.println("Us.accessToken = " + accessToken);
         return Mapper.toEntity(kakaoUserService.getKakaoUserInfo(accessToken));
     }
 

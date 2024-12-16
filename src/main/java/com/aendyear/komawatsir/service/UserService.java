@@ -227,11 +227,9 @@ public class UserService {
 
     public boolean validateToken(Integer userId, HttpServletRequest request) {
         boolean b = false;
-
         String token = jwtTokenProvider.resolveToken(request);
         if (jwtTokenProvider.validateToken(token)) {
             String kakaoId = jwtTokenProvider.getUserId(token);
-
             Optional<User> userInfo = userRepository.findByKakaoId(kakaoId);
             if (userInfo.isPresent()) {
                 b = (userInfo.get().getId().equals(userId));

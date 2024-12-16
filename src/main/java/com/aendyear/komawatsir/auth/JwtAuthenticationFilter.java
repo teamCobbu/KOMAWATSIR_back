@@ -40,6 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
                 return;
             }
 
+            if (requestURI.startsWith("/api/users/token/validate")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             // 토큰 추출 및 검증
             String token = jwtTokenProvider.resolveToken(request);
             if (token == null || !jwtTokenProvider.validateToken(token)) {

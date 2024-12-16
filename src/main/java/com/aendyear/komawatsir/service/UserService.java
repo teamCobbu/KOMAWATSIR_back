@@ -94,8 +94,11 @@ public class UserService {
 
     // 사용자 정보를 데이터베이스에서 조회하거나, 없으면 새로 저장
     private User findOrSaveUser(User user) {
+        System.out.print("findOrSaveUser-1");
         Optional<User> checkUser = userRepository.findByKakaoId(user.getKakaoId());
+        System.out.print("findOrSaveUser-2");
         checkUser.ifPresent(u -> u.setIsSmsAllowed(u.getIsSmsAllowed() != null && u.getIsSmsAllowed()));
+        System.out.print("findOrSaveUser-3");
         return userRepository.save(user);
     }
 

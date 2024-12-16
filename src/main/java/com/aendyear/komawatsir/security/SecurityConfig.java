@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -40,6 +42,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                         .requestMatchers("/api/users/logout").permitAll()
                         .requestMatchers("/api/inquiry/validate/url").permitAll()
                         .requestMatchers("/api/users/*/receivers").permitAll()
+                        .requestMatchers("/api/users/token/validate/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(new DebugLoggingFilter(), UsernamePasswordAuthenticationFilter.class); // 디버깅 필터 추가
         return http.build();
@@ -49,6 +52,8 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
         @Override
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                 throws ServletException , IOException {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String user = (auth != null) ? auth.getName() : "Anonymous";
             logger.info("DebugLoggingFilter: URI=" + request.getRequestURI() + ", Method=" + request.getMethod());
             filterChain.doFilter(request, response);
         }

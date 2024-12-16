@@ -54,7 +54,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                 throws ServletException , IOException {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String user = (auth != null) ? auth.getName() : "Anonymous";
-            logger.info("DebugLoggingFilter: URI=" + request.getRequestURI() + ", Method=" + request.getMethod());
+            System.out.println("DebugLoggingFilter: URI=" + request.getRequestURI() + ", Method=" + request.getMethod());
             filterChain.doFilter(request, response);
         }
     }

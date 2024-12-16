@@ -44,7 +44,14 @@ public class UserService {
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
         }
+        User userInfo = getUserInfoFromKakao(accessToken);
+        System.out.println("Kakao User Info: " + userInfo);
+        if (userInfo == null) {
+            throw new RuntimeException("User info from Kakao is null");
+        }
+
         User user = findOrSaveUser(getUserInfoFromKakao(accessToken));
+
         System.out.println("US.user = " + user);
         UserDto userDto = new UserDto(user);
         System.out.println("US.userDto = " + userDto);
@@ -215,6 +222,7 @@ public class UserService {
         String token = jwtTokenProvider.resolveToken(request);
         if (jwtTokenProvider.validateToken(token)) {
             String kakaoId = jwtTokenProvider.getUserId(token);
+
             Optional<User> userInfo = userRepository.findByKakaoId(kakaoId);
             if (userInfo.isPresent()) {
                 b = (userInfo.get().getId().equals(userId));

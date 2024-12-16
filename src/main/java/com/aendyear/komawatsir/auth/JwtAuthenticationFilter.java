@@ -25,12 +25,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        String requestURI = request.getRequestURI();
+        String httpMethod = request.getMethod();
+
         try {
-            String requestURI = request.getRequestURI();
-            String httpMethod = request.getMethod();
+            logger.info("JwtAuthenticationFilter: URI=" + requestURI + ", Method=" + httpMethod);
 
             // 인증 건너뛰기
             if (isExcluded(requestURI, httpMethod)) {
+                logger.info("JwtAuthenticationFilter: Excluded path. URI=" + requestURI);
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -47,20 +51,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
 
             // 토큰 추출 및 검증
             String token = jwtTokenProvider.resolveToken(request);
+            logger.info("JwtAuthenticationFilter: Extracted token=" + token);
+
             if (token == null || !jwtTokenProvider.validateToken(token)) {
+                logger.warn("JwtAuthenticationFilter: Invalid or missing token. URI=" + requestURI);
                 HttpSession session = request.getSession(false);
                 if (session != null) {
+                    logger.info("JwtAuthenticationFilter: Invalidating session.");
                     session.invalidate();
                 }
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                 return;
             } else {
                 Authentication auth = jwtTokenProvider.getAuthentication(token);
+                logger.info("JwtAuthenticationFilter: Authentication success. User=" + auth.getName());
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
 
             filterChain.doFilter(request, response);
         } catch (Exception e) {
+            logger.error("JwtAuthenticationFilter: Internal server error. URI=" + requestURI, e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
     }

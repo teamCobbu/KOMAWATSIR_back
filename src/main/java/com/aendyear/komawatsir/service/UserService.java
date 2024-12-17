@@ -125,6 +125,7 @@ public class UserService {
         cookie.setSecure(true);
         cookie.setMaxAge(0); // 쿠키 만료 설정
         cookie.setPath("/"); // 쿠키의 유효한 경로
+        cookie.setDomain("xn--299au8vhphgpd.com");
         response.addCookie(cookie);
     }
 

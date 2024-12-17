@@ -122,6 +122,7 @@ public class UserService {
     // 쿠키 삭제 메서드
     private void deleteCookie(HttpServletResponse response, String cookieName) {
         var cookie = new Cookie(cookieName, null);
+        cookie.setSecure(true);
         cookie.setMaxAge(0); // 쿠키 만료 설정
         cookie.setPath("/"); // 쿠키의 유효한 경로
         response.addCookie(cookie);

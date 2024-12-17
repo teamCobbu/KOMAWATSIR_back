@@ -25,26 +25,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        String requestURI = request.getRequestURI();
-        String httpMethod = request.getMethod();
-
         try {
-            System.out.println("JwtAuthenticationFilter: URI=" + requestURI + ", Method=" + httpMethod);
+            String requestURI = request.getRequestURI();
+            String httpMethod = request.getMethod();
 
             // 인증 건너뛰기
             if (isExcluded(requestURI, httpMethod)) {
-                System.out.println("JwtAuthenticationFilter: Excluded path. URI=" + requestURI);
                 filterChain.doFilter(request, response);
                 return;
             }
 
             if (requestURI.startsWith("/actuator")) {
-                System.out.println("JwtAuthenticationFilter: actuator URI=" + requestURI);
                 filterChain.doFilter(request, response);
                 return;
             }
-            System.out.println("validate before");
 
             if (requestURI.startsWith("/api/users/token/validate")) {
                 filterChain.doFilter(request, response);
@@ -53,28 +47,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
 
             // 토큰 추출 및 검증
             String token = jwtTokenProvider.resolveToken(request);
-            System.out.println("JwtAuthenticationFilter: Extracted token=" + token);
 
             if (token == null || !jwtTokenProvider.validateToken(token)) {
-                System.out.println("JwtAuthenticationFilter: Invalid or missing token. URI=" + requestURI);
                 HttpSession session = request.getSession(false);
                 if (session != null) {
-                    System.out.println("JwtAuthenticationFilter: Invalidating session.");
                     session.invalidate();
                 }
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                 return;
             } else {
-                System.out.println("이건 실행이 되어야함");
-                Authentication auth = jwtTokenProvider.getAuthentication(token);
-                System.out.println("JwtAuthenticationFilter: Authentication success. User=" + auth.getName());
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                System.out.println("JwtAuthenticationFilter: SecurityContext set. Authentication=" + SecurityContextHolder.getContext().getAuthentication());
+                SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthentication(token));
             }
-
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            System.out.println("JwtAuthenticationFilter: Internal server error. URI=" + requestURI+" : "+ e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
     }

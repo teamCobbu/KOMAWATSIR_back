@@ -34,26 +34,18 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String userAgent = request.getHeader("User-Agent");
 
         if (userAgent != null && isBlockedUserAgent(userAgent)) {
-            System.out.println("RateLimitingFilter: Blocked User-Agent detected. User-Agent=" + userAgent);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Access Denied: Your User-Agent is blocked.");
             return;
         }
 
         String ipAddress = request.getRemoteAddr(); // 클라이언트 IP 가져오기
-        System.out.println("RateLimitingFilter: IP=" + ipAddress + ", User-Agent=" + userAgent);
-
         Bucket bucket = buckets.computeIfAbsent(ipAddress, this::createNewBucket);
-        System.out.println("RateLimitingFilter: Remaining tokens for IP=" + ipAddress + ": " + bucket.getAvailableTokens());
 
         if (bucket.tryConsume(1)) {
-            System.out.println("RateLimitingFilter: IP=" + ipAddress + " passed rate limiting.");
-
             // 토큰 소모 성공 -> 요청 허용
             filterChain.doFilter(request, response);
         } else {
-            logger.warn("RateLimitingFilter: IP=" + ipAddress + " exceeded rate limit.");
-
             // 토큰 부족 -> HTTP 429 반환
             response.setStatus(SC_TOO_MANY_REQUESTS);
             response.getWriter().write("Too many requests");

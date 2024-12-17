@@ -65,7 +65,6 @@ public class JwtTokenProvider {
             if (expiration == null || expiration.before(new Date())){
                 throw new JwtException("token has expired");
             }
-            System.out.println("JwtTokenProvider: Token is valid. Claims=" + claims);
             return true;
         } catch (ExpiredJwtException e) {
             throw new JwtException("Token expired", e);
@@ -78,9 +77,6 @@ public class JwtTokenProvider {
 
     // 토큰에서 사용자 정보 추출
     public String getUserId(String token) {
-        System.out.println("JwtTokenProvider: getUserId token=" + token);
-        System.out.println(Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build()
-                .parseClaimsJws(token).getBody().getSubject());
         return Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
@@ -92,29 +88,22 @@ public class JwtTokenProvider {
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
                     if ("JWT".equals(cookie.getName())) {
-                        System.out.println("JwtTokenProvider: Found JWT in cookie. Token=" + cookie.getValue());
                         return cookie.getValue();  // 쿠키에서 JWT 값을 반환
                     }
                 }
             }
-            System.out.println("JwtTokenProvider: No JWT found in cookies.");
             return null;
         } catch (Exception e) {
-            System.out.println("JwtTokenProvider: Failed to resolve token."+ e);
             throw new RuntimeException("Failed to resolve token", e);  // 예외 메시지에 추가 정보를 포함
         }
     }
 
     public Authentication getAuthentication(String token) {
-        System.out.println("JwtTokenProvider: Getting authentication for token=" + token);
-        String kakaoId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
-        UserDto kakaoUser = kakaoUserService.findByKakaoId(kakaoId);
-        System.out.println("kakaoId : "+kakaoId+" // kakaoUser : "+kakaoUser);
+        UserDto kakaoUser = kakaoUserService.findByKakaoId(getUserId(token));
         if (kakaoUser == null) {
             throw new RuntimeException("User not found: " + kakaoUser.getId()); // 예외 발생
         }
         UserDetails userDetails = new CustomUserDetails(kakaoUser); // CustomUserDetails는 사용자의 정보를 포함한 클래스
-        System.out.println("JTP , userDetails: " + userDetails);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

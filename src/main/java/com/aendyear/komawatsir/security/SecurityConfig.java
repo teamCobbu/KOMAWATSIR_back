@@ -25,11 +25,9 @@ import java.io.IOException;
 @EnableWebSecurity
 public class SecurityConfig {//JWT 토큰을 생성하고 검증
     private final JwtAuthenticationFilter jwtAuthenticationFilter ;
-    private final RateLimitingFilter rateLimitingFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter , RateLimitingFilter rateLimitingFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter  = jwtAuthenticationFilter ;
-        this.rateLimitingFilter = rateLimitingFilter;
     }
 
     @Bean
@@ -46,7 +44,6 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                         .requestMatchers("/api/users/*/receivers").permitAll()
                         .requestMatchers("/api/users/token/validate/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class) // 순서 설정
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new DebugLoggingFilter(), UsernamePasswordAuthenticationFilter.class); // 디버깅 필터 추가
         return http.build();

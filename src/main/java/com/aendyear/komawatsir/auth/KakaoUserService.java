@@ -51,9 +51,6 @@ public class KakaoUserService { //사용자 정보조회
             UserDto userDto = new UserDto();
             System.out.println("KakaoUS.userDto : " + userDto);
             userDto.setKakaoId(rootNode.get("id").toString());
-            JsonNode propertiesNode = rootNode.get("properties");
-            userDto.setName(propertiesNode.get("nickname").asText());
-            System.out.println("KakaoUS.userDto : " + userDto);
             return userDto;
 
         } catch (Exception e) {

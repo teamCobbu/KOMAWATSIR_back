@@ -45,7 +45,7 @@ jobs:
         run: |
           IMAGE_TAG=latest
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker build --no-cache -t $ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REPOSITORY:$IMAGE_TAG $IMAGE_URI
           docker push $IMAGE_URI
 
@@ -69,14 +69,24 @@ jobs:
             --cli-input-json file://new-task-definition.json \
             --region $AWS_REGION
 
-      # 8. ECS 서비스 업데이트
-      - name: Update ECS Service
+      # 8. Target Group 상태 확인 후 ECS 서비스 업데이트
+      - name: Wait for ECS tasks to be healthy
         env:
           AWS_REGION: ap-northeast-2
+          CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }}
+          SERVICE_NAME: ${{ secrets.ECS_SERVICE_NAME }}
         run: |
-          # ECS 서비스 업데이트 (revision 없이 image tag로 업데이트)
+      # ECS 서비스 업데이트 진행
+          echo "ECS 서비스 업데이트 시작..."
           aws ecs update-service \
-            --cluster AendyearCluster \
-            --service komawotsir-aendyear \
+            --cluster $CLUSTER_NAME \
+            --service $SERVICE_NAME \
             --task-definition AendyearTask \
-            --region $AWS_REGION \
+            --region $AWS_REGION
+               
+          echo "ECS 서비스 안정화 대기 중..."
+          aws ecs wait services-stable \
+            --cluster $CLUSTER_NAME \
+            --services $SERVICE_NAME \
+            --region $AWS_REGION || { echo "ECS 서비스 안정화 실패"; exit 1; }
+          echo "ECS 서비스 업데이트 완료."

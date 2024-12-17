@@ -53,7 +53,7 @@ public class UserService {
 
         User user = findOrSaveUser(getUserInfoFromKakao(accessToken));
 
-        System.out.println("US.user = " + user);
+        System.out.println("US.user id22 = " + user.getId() +" -- "+ user.getKakaoId());
         UserDto userDto = new UserDto(user);
         System.out.println("US.userDto = " + userDto);
 
@@ -107,8 +107,8 @@ public class UserService {
 
     // 사용자 정보를 데이터베이스에서 조회하거나, 없으면 새로 저장
     private User findOrSaveUser(User user) {
-        System.out.println("getId : " + user.getId());
-        System.out.println("getTel : " + user.getTel());
+        System.out.println("getId11 : " + user.getId());
+        System.out.println("getTel11 : " + user.getTel());
         System.out.println("getName : " + user.getName());
         System.out.println("getKakaoId : " + user.getKakaoId());
         System.out.println("getIsSmsAllowed : " + user.getIsSmsAllowed());
@@ -117,6 +117,9 @@ public class UserService {
            user.setId(checkUser.get().getId());
            user.setTel(checkUser.get().getTel());
            user.setIsSmsAllowed(checkUser.get().getIsSmsAllowed());
+
+            System.out.println("getId12 : " + user.getId());
+            System.out.println("getTel12 : " + user.getTel());
         } else {
             user.setIsSmsAllowed(false);
         }

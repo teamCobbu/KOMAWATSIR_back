@@ -65,6 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                 return;
             } else {
+                System.out.println("이건 실행이 되어야함");
                 Authentication auth = jwtTokenProvider.getAuthentication(token);
                 System.out.println("JwtAuthenticationFilter: Authentication success. User=" + auth.getName());
                 SecurityContextHolder.getContext().setAuthentication(auth);

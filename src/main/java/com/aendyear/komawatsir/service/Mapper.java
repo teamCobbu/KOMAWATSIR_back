@@ -141,6 +141,7 @@ public class Mapper {
                 .receiverId(dto.getReceiverId())
                 .contents(dto.getContents())
                 .status(dto.getStatus())
+                .imageUrl(dto.getImageUrl())
                 .year(dto.getYear())
                 .build();
     }
@@ -154,6 +155,7 @@ public class Mapper {
                 .contents(entity.getContents())
                 .status(entity.getStatus())
                 .year(entity.getYear())
+                .imageUrl(entity.getImageUrl())
                 .build();
     }
 

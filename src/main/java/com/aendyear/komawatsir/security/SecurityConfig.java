@@ -25,11 +25,9 @@ import java.io.IOException;
 @EnableWebSecurity
 public class SecurityConfig {//JWT 토큰을 생성하고 검증
     private final JwtAuthenticationFilter jwtAuthenticationFilter ;
-    private final RateLimitingFilter rateLimitingFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter , RateLimitingFilter rateLimitingFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter  = jwtAuthenticationFilter ;
-        this.rateLimitingFilter = rateLimitingFilter;
     }
 
     @Bean
@@ -46,21 +44,8 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                         .requestMatchers("/api/users/*/receivers").permitAll()
                         .requestMatchers("/api/users/token/validate/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class) // 순서 설정
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new DebugLoggingFilter(), UsernamePasswordAuthenticationFilter.class); // 디버깅 필터 추가
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
-    }
-
-    class DebugLoggingFilter extends OncePerRequestFilter {
-        @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-                throws ServletException , IOException {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String user = (auth != null) ? auth.getName() : "Anonymous";
-            System.out.println("DebugLoggingFilter: URI=" + request.getRequestURI() + ", Method=" + request.getMethod());
-            filterChain.doFilter(request, response);
-        }
     }
 
     @Bean

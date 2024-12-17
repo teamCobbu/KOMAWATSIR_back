@@ -20,7 +20,6 @@ public class KakaoAuthService {//Access Token을 요청
     }
 
     public String getAccessToken(String code, String clientId, String redirectUri) {
-
         // 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/x-www-form-urlencoded");
@@ -37,6 +36,7 @@ public class KakaoAuthService {//Access Token을 요청
         ResponseEntity<String> response = restTemplate.exchange(
                 KAKAO_TOKEN_URL, HttpMethod.POST, requestEntity, String.class
         );
+
 
         // 응답에서 Access Token 파싱
         String responseBody = response.getBody();
@@ -77,15 +77,9 @@ public class KakaoAuthService {//Access Token을 요청
                     entity,
                     String.class
             );
-            if (response.getStatusCode().is2xxSuccessful()) {
-                return true;
-            } else {
-                System.out.println("Response Status: " + response.getStatusCode());
-                System.out.println("Response Body: " + response.getBody());
-                return false;
-            }
+            if (response.getStatusCode().is2xxSuccessful()) {return true;
+            }else {return false;}
         } catch (Exception e) {
-            System.out.println("Error occurred while unlinking: " + e.getMessage());
             return false;
         }
     }

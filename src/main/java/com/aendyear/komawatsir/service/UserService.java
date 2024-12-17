@@ -40,20 +40,25 @@ public class UserService {
     // 카카오 로그인
     public UserDto getKakaoLogin(String code, String clientId, String redirectUri, HttpServletRequest request, HttpServletResponse response) {
         String accessToken = parseAccessToken(kakaoAuthService.getAccessToken(code, clientId, redirectUri));
+        System.out.println("US.accessToken = " + accessToken);
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
         }
 
         User userInfo = getUserInfoFromKakao(accessToken);
+        System.out.println("Kakao User Info: " + userInfo);
         if (userInfo == null) {
             throw new RuntimeException("User info from Kakao is null");
         }
 
         User user = findOrSaveUser(getUserInfoFromKakao(accessToken));
 
+        System.out.println("US.user id22 = " + user.getId() +" -- "+ user.getKakaoId());
         UserDto userDto = new UserDto(user);
+        System.out.println("US.userDto = " + userDto);
 
         String jwtToken = jwtTokenProvider.createToken(user.getKakaoId());
+        System.out.println("US.jwtToken = " + jwtToken);
         addJwtToCookie(response, jwtToken);
 
         request.getSession().setAttribute("kakao_access_token", accessToken);
@@ -64,7 +69,7 @@ public class UserService {
     //인증된 사용자
     public Integer getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
+        System.out.println("authentication = " + authentication);
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new AccessDeniedException("인증되지 않은 사용자입니다.");
         }
@@ -96,16 +101,25 @@ public class UserService {
     }
 
     private User getUserInfoFromKakao(String accessToken) {
+        System.out.println("Us.accessToken = " + accessToken);
         return Mapper.toEntity(kakaoUserService.getKakaoUserInfo(accessToken));
     }
 
     // 사용자 정보를 데이터베이스에서 조회하거나, 없으면 새로 저장
     private User findOrSaveUser(User user) {
+        System.out.println("getId11 : " + user.getId());
+        System.out.println("getTel11 : " + user.getTel());
+        System.out.println("getName : " + user.getName());
+        System.out.println("getKakaoId : " + user.getKakaoId());
+        System.out.println("getIsSmsAllowed : " + user.getIsSmsAllowed());
         Optional<User> checkUser = userRepository.findByKakaoId(user.getKakaoId());
         if(checkUser.isPresent()) {
            user.setId(checkUser.get().getId());
            user.setTel(checkUser.get().getTel());
            user.setIsSmsAllowed(checkUser.get().getIsSmsAllowed());
+
+            System.out.println("getId12 : " + user.getId());
+            System.out.println("getTel12 : " + user.getTel());
         } else {
             user.setIsSmsAllowed(false);
         }

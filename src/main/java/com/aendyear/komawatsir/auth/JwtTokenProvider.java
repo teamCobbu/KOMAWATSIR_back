@@ -78,6 +78,9 @@ public class JwtTokenProvider {
 
     // 토큰에서 사용자 정보 추출
     public String getUserId(String token) {
+        System.out.println("JwtTokenProvider: getUserId token=" + token);
+        System.out.println(Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build()
+                .parseClaimsJws(token).getBody().getSubject());
         return Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
@@ -103,13 +106,15 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
+        System.out.println("JwtTokenProvider: Getting authentication for token=" + token);
         String kakaoId = getUserId(token); // 카카오 사용자 ID를 토큰에서 한번만 추출
         UserDto kakaoUser = kakaoUserService.findByKakaoId(kakaoId);
+        System.out.println("kakaoId : "+kakaoId+" // kakaoUser : "+kakaoUser);
         if (kakaoUser == null) {
             throw new RuntimeException("User not found: " + kakaoUser.getId()); // 예외 발생
         }
         UserDetails userDetails = new CustomUserDetails(kakaoUser); // CustomUserDetails는 사용자의 정보를 포함한 클래스
-
+        System.out.println("JTP , userDetails: " + userDetails);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

@@ -15,6 +15,9 @@ public interface ReceiverRepository extends JpaRepository<Receiver, Integer>, Re
 
     List<Receiver> findByReceiverUserId(Integer receiverUserId);
 
+    List<Receiver> findByReceiverUserIdAndYearLessThanEqual(Integer receiverUserId, String year);
+
+
     Optional<Receiver> findBySenderIdAndTelAndYear(Integer senderId, String tel, String year);
 
     Optional<Receiver> findBySenderIdAndReceiverUserIdAndYear(Integer senderId, Integer receiverUserId, String year);

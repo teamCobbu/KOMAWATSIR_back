@@ -112,7 +112,8 @@ public class PostService {
     public List<PostDesignDto> getCardsByUser(Integer receiverUserId) {
         List<PostDesignDto> result = new ArrayList<>();
 
-        receiverRepository.findByReceiverUserId(receiverUserId).forEach(receiver -> {
+//        receiverRepository.findByReceiverUserId(receiverUserId).forEach(receiver -> {
+        receiverRepository.findByReceiverUserIdAndYearLessThanEqual(receiverUserId, year).forEach(receiver -> {
             List<Post> posts = postRepository.findByReceiverIdAndStatusNot(receiver.getId(), PostStatus.DELETED);
 
             posts.forEach(post -> {
@@ -191,7 +192,7 @@ public class PostService {
         }
     }
 
-    public String saveAsImage(Post post){
+    public String saveAsImage(Post post) {
         PostDesignDto design = getPostDesign(post.getSenderId());
         PostImageDto dto = PostImageDto.builder()
                 .postId(post.getId())
@@ -210,7 +211,7 @@ public class PostService {
                 backgroundImage = ImageIO.read(imageUrl);
 
                 if (backgroundImage == null) {
-                    throw new RuntimeException("Failed to read image from URL: "  );
+                    throw new RuntimeException("Failed to read image from URL: ");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -227,7 +228,8 @@ public class PostService {
             graphics.drawImage(backgroundImage, 0, 0, null);
 
             // 3. 로컬 폰트 파일 로드
-            java.awt.Font customFont = loadLocalFont("fonts/" + dto.getFont() + ".ttf", dto.getFontSize().equals(FontSize.defaultSize) ? 48f:72f).deriveFont(java.awt.Font.BOLD);
+            System.out.println("폰트이름: " +dto.getFont());
+            java.awt.Font customFont = loadLocalFont("fonts/" + dto.getFont() + ".ttf", dto.getFontSize().equals(FontSize.defaultSize) ? 48f : 72f).deriveFont(java.awt.Font.BOLD);
             graphics.setFont(customFont);
 
             // 4. 텍스트 스타일 및 색상 설정
@@ -351,35 +353,35 @@ public class PostService {
     public PostDesignDto getPostDesign(Integer userId) {
         PostDesignDto postDesignDto = new PostDesignDto();
 
-           Optional<Design> design =  designRepository.findByUserIdAndYear(userId, nextYear);
-           if(design.isPresent()) {
-              Optional<Image> image = imageRepository.findById(design.get().getBackgroundId());
-              image.ifPresent(value -> {
-                  postDesignDto.setBackgroundPic(value.getPic());
-                  postDesignDto.setBackgroundId(value.getId());
-              });
-              image = imageRepository.findById(design.get().getThumbnailId());
-              image.ifPresent(value -> {
-                  postDesignDto.setThumbnailPic(value.getPic());
-                  postDesignDto.setThumbnailId(value.getId());
-              });
+        Optional<Design> design = designRepository.findByUserIdAndYear(userId, nextYear);
+        if (design.isPresent()) {
+            Optional<Image> image = imageRepository.findById(design.get().getBackgroundId());
+            image.ifPresent(value -> {
+                postDesignDto.setBackgroundPic(value.getPic());
+                postDesignDto.setBackgroundId(value.getId());
+            });
+            image = imageRepository.findById(design.get().getThumbnailId());
+            image.ifPresent(value -> {
+                postDesignDto.setThumbnailPic(value.getPic());
+                postDesignDto.setThumbnailId(value.getId());
+            });
 
-              postDesignDto.setDesignId(design.get().getId());
-              postDesignDto.setFontSize(design.get().getFontSize());
-              postDesignDto.setFontColor(design.get().getFontColor());
+            postDesignDto.setDesignId(design.get().getId());
+            postDesignDto.setFontSize(design.get().getFontSize());
+            postDesignDto.setFontColor(design.get().getFontColor());
 
-              Optional<Font> font = fontRepository.findById(design.get().getFontId());
-              font.ifPresent(value -> {
-                  postDesignDto.setFontUrl(value.getUrl());
-                  postDesignDto.setFontId(value.getId());
-                  postDesignDto.setFontName(value.getName());
-              });
+            Optional<Font> font = fontRepository.findById(design.get().getFontId());
+            font.ifPresent(value -> {
+                postDesignDto.setFontUrl(value.getUrl());
+                postDesignDto.setFontId(value.getId());
+                postDesignDto.setFontName(value.getName());
+            });
 
-           }
+        }
         return postDesignDto;
     }
 
-    public String savePostImage(Integer postId, MultipartFile image){
+    public String savePostImage(Integer postId, MultipartFile image) {
         Post post = postRepository.findById(postId).get();
         post.setImageUrl(uploadImage(postId, image));
         postRepository.save(post);
@@ -530,42 +532,40 @@ public class PostService {
     }
 
 
-
-
     // todo: 테스트용 (추후 삭제)
     // 연도별 받은 연하장
     public List<PostDesignDto> getAllCards() {
         List<PostDesignDto> result = new ArrayList<PostDesignDto>();
 
-            List<Post> posts = postRepository.findAll();
+        List<Post> posts = postRepository.findAll();
 
-            posts.forEach(post -> {
-                PostDesignDto postDesignDto = new PostDesignDto();
-                postDesignDto.setPostId(post.getId());
-                postDesignDto.setSenderId(post.getSenderId());
-                postDesignDto.setReceiverId(post.getReceiverId());
-                postDesignDto.setSenderNickname(post.getSenderNickname());
-                postDesignDto.setContents(post.getContents());
-                postDesignDto.setYear(post.getYear());
-                postDesignDto.setBackgroundPic(post.getImageUrl());
+        posts.forEach(post -> {
+            PostDesignDto postDesignDto = new PostDesignDto();
+            postDesignDto.setPostId(post.getId());
+            postDesignDto.setSenderId(post.getSenderId());
+            postDesignDto.setReceiverId(post.getReceiverId());
+            postDesignDto.setSenderNickname(post.getSenderNickname());
+            postDesignDto.setContents(post.getContents());
+            postDesignDto.setYear(post.getYear());
+            postDesignDto.setBackgroundPic(post.getImageUrl());
 
-                Optional<Design> designs = designRepository.findByUserIdAndYear(post.getSenderId(), post.getYear());
-                if (designs.isPresent()) {
-                    Design design = designs.get();
+            Optional<Design> designs = designRepository.findByUserIdAndYear(post.getSenderId(), post.getYear());
+            if (designs.isPresent()) {
+                Design design = designs.get();
 
-                    // thumbnail
-                    Optional<Image> thumbnail = imageRepository.findById(design.getThumbnailId());
-                    thumbnail.ifPresent(image -> postDesignDto.setThumbnailPic(image.getPic()));
+                // thumbnail
+                Optional<Image> thumbnail = imageRepository.findById(design.getThumbnailId());
+                thumbnail.ifPresent(image -> postDesignDto.setThumbnailPic(image.getPic()));
 
-                    // font
-                    Optional<Font> fonts = fontRepository.findById(design.getFontId());
-                    fonts.ifPresent(font -> {
-                        postDesignDto.setFontUrl(font.getUrl());
-                        postDesignDto.setFontName(font.getName());
-                    });
-                }
-                result.add(postDesignDto);
-            });
+                // font
+                Optional<Font> fonts = fontRepository.findById(design.getFontId());
+                fonts.ifPresent(font -> {
+                    postDesignDto.setFontUrl(font.getUrl());
+                    postDesignDto.setFontName(font.getName());
+                });
+            }
+            result.add(postDesignDto);
+        });
         return result;
     }
 }

@@ -4,8 +4,8 @@ FROM openjdk:17-jdk-slim
 # 2. 시스템 폰트 및 필수 패키지 설치
 RUN apt-get update && apt-get install -y \
     fontconfig \
-    ttf-dejavu \
-    ttf-mscorefonts-installer \
+    fonts-dejavu \
+    fonts-noto \
     && fc-cache -fv \
     && apt-get clean
 

@@ -182,6 +182,7 @@ public class PostService {
 
     // 로컬 폰트 로드
     public java.awt.Font loadLocalFont(String fontPath, float size) {
+        System.out.println("폰트 경로 " + fontPath);
         try (InputStream fontStream = getClass().getClassLoader().getResourceAsStream(fontPath)) {
             if (fontStream == null) {
                 throw new RuntimeException("폰트 파일을 찾을 수 없습니다: " + fontPath);

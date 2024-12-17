@@ -2,10 +2,13 @@ package com.aendyear.komawatsir.service;
 
 import com.aendyear.komawatsir.dto.PostDesignDto;
 import com.aendyear.komawatsir.dto.PostDto;
+import com.aendyear.komawatsir.dto.PostImageDto;
 import com.aendyear.komawatsir.entity.Font;
 import com.aendyear.komawatsir.entity.Image;
 import com.aendyear.komawatsir.entity.*;
 import com.aendyear.komawatsir.repository.*;
+import com.aendyear.komawatsir.type.FontColor;
+import com.aendyear.komawatsir.type.FontSize;
 import com.aendyear.komawatsir.type.PostStatus;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -170,9 +173,145 @@ public class PostService {
             post.setStatus(PostStatus.PROGRESSING);
         } else if (status.equals("completed")) {
             post.setStatus(PostStatus.COMPLETED);
+            saveAsImage(post);
         }
 
         return postRepository.save(post);
+    }
+
+    // 로컬 폰트 로드
+    public java.awt.Font loadLocalFont(String fontPath, float size) {
+        try (InputStream fontStream = getClass().getClassLoader().getResourceAsStream(fontPath)) {
+            if (fontStream == null) {
+                throw new RuntimeException("폰트 파일을 찾을 수 없습니다: " + fontPath);
+            }
+            return java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, fontStream).deriveFont(size);
+        } catch (Exception e) {
+            throw new RuntimeException("폰트 파일 로드 중 오류 발생", e);
+        }
+    }
+
+    public String saveAsImage(Post post){
+        PostDesignDto design = getPostDesign(post.getSenderId());
+        PostImageDto dto = PostImageDto.builder()
+                .postId(post.getId())
+                .contents(post.getContents())
+                .imageUrl(design.getBackgroundPic())
+                .font(design.getFontName())
+                .fontColor(design.getFontColor())
+                .fontSize(design.getFontSize())
+                .build();
+        try {
+            // 1. 배경 이미지 로드
+            BufferedImage backgroundImage;
+            //= ImageIO.read(new File(image.getPic()));
+            try {
+                URL imageUrl = new URL(dto.getImageUrl());
+                backgroundImage = ImageIO.read(imageUrl);
+
+                if (backgroundImage == null) {
+                    throw new RuntimeException("Failed to read image from URL: "  );
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Error occurred while loading background image from URL: ", e);
+            }
+
+            // 2. 새로운 이미지 생성 (배경 크기와 동일하게)
+            BufferedImage newImage = new BufferedImage(
+                    backgroundImage.getWidth(),
+                    backgroundImage.getHeight(),
+                    BufferedImage.TYPE_INT_ARGB
+            );
+            Graphics2D graphics = newImage.createGraphics();
+            graphics.drawImage(backgroundImage, 0, 0, null);
+
+            // 3. 로컬 폰트 파일 로드
+            java.awt.Font customFont = loadLocalFont("fonts/" + dto.getFont() + ".ttf", dto.getFontSize().equals(FontSize.defaultSize) ? 48f:72f).deriveFont(java.awt.Font.BOLD);
+            graphics.setFont(customFont);
+
+            // 4. 텍스트 스타일 및 색상 설정
+            graphics.setColor(dto.getFontColor().equals(FontColor.black) ? Color.BLACK : Color.WHITE);
+
+            // 5. 텍스트 위치를 이미지 가운데에 정렬
+            String text = dto.getContents();
+            int maxWidth = backgroundImage.getWidth() - 100; // 최대 너비 여백 고려
+            int centerX = backgroundImage.getWidth() / 2;    // 이미지 가로 중앙
+            int startY = backgroundImage.getHeight() / 2 - 50; // 시작 Y 좌표 (위에서부터 적절히 조정)
+
+            drawMultilineTextCentered(graphics, text, centerX, startY, maxWidth);
+            // 6. 이미지 저장
+            graphics.dispose();
+            String path = uploadBufferedImgToS3(newImage);
+            System.out.println(path);
+            return path;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "이미지 생성 중 오류가 발생했습니다.";
+        }
+    }
+
+    public String uploadBufferedImgToS3(BufferedImage image) {
+        try {
+            // BufferedImage를 ByteArrayOutputStream으로 변환
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", os);
+            byte[] imageBytes = os.toByteArray();
+
+            // S3 업로드를 위한 InputStream 생성
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(imageBytes);
+
+            // 메타데이터 설정
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType("image/png");
+            metadata.setContentLength(imageBytes.length);
+
+            // S3 파일 경로 설정
+            // todo: 이름 이쁘게
+            String fileName = "post-" + System.currentTimeMillis() + ".png";
+
+            // S3에 파일 업로드
+            amazonS3Client.putObject(bucket, fileName, inputStream, metadata);
+
+            // S3 URL 반환
+            System.out.println(amazonS3Client.getUrl(bucket, fileName).toString());
+            return amazonS3Client.getUrl(bucket, fileName).toString();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "S3 업로드 중 오류가 발생했습니다.";
+        }
+    }
+
+    public void drawMultilineTextCentered(Graphics2D graphics, String text, int centerX, int startY, int maxWidth) {
+        FontMetrics fontMetrics = graphics.getFontMetrics();
+        int lineHeight = fontMetrics.getHeight();
+
+        // 텍스트를 나누기 위한 StringBuilder
+        StringBuilder line = new StringBuilder();
+        int currentY = startY;
+
+        for (String word : text.split(" ")) {
+            if (fontMetrics.stringWidth(line + word) > maxWidth) {
+                // 현재 줄이 maxWidth를 초과하면 출력
+                int lineWidth = fontMetrics.stringWidth(line.toString());
+                int x = centerX - (lineWidth / 2); // 가로 중앙 정렬
+                graphics.drawString(line.toString(), x, currentY);
+
+                // 다음 줄로 이동
+                line = new StringBuilder(word).append(" ");
+                currentY += lineHeight;
+            } else {
+                line.append(word).append(" ");
+            }
+        }
+
+        // 남은 텍스트 출력 (마지막 줄)
+        if (!line.isEmpty()) {
+            int lineWidth = fontMetrics.stringWidth(line.toString());
+            int x = centerX - (lineWidth / 2);
+            graphics.drawString(line.toString(), x, currentY);
+        }
     }
 
     // 연하장 단일 조회

@@ -228,7 +228,6 @@ public class PostService {
             graphics.drawImage(backgroundImage, 0, 0, null);
 
             // 3. 로컬 폰트 파일 로드
-            System.out.println("폰트이름: " +dto.getFont());
             java.awt.Font customFont = loadLocalFont("fonts/" + dto.getFont() + ".ttf", dto.getFontSize().equals(FontSize.defaultSize) ? 48f : 72f).deriveFont(java.awt.Font.BOLD);
             graphics.setFont(customFont);
 

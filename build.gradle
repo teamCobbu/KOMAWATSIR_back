@@ -87,10 +87,4 @@ dependencyManagement {
 	}
 }
 
-processResources {
-	from('src/main/resources') {
-		include '**/*.ttf'
-	}
-}
-
 

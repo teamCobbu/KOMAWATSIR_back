@@ -14,7 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-@Order(1)
+@Order(2)
 public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토큰을 검증
     private final JwtTokenProvider jwtTokenProvider;
 

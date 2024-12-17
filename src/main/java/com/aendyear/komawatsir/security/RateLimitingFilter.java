@@ -17,8 +17,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-//@Order(1)
-//@Component
+@Order(1)
+@Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     public static final int SC_TOO_MANY_REQUESTS = 429;

@@ -61,6 +61,7 @@ public class PostService {
     @Value("${openai.api-key}")
     private String openaiApiKey;
 
+    @Autowired
     private AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")

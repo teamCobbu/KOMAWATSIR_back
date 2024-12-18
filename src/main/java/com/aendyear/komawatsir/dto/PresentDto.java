@@ -10,16 +10,12 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostImageDto {
+public class PresentDto {
     private int postId;
 
-    private String contents;
+    private String sender;
 
-    private String imageUrl;
+    private String front;
 
-    private String font;
-
-    private FontColor fontColor;
-
-    private FontSize fontSize;
+    private String back;
 }

@@ -2,6 +2,7 @@ package com.aendyear.komawatsir.controller;
 
 import com.aendyear.komawatsir.dto.PostDesignDto;
 import com.aendyear.komawatsir.dto.PostDto;
+import com.aendyear.komawatsir.dto.PresentDto;
 import com.aendyear.komawatsir.entity.Post;
 import com.aendyear.komawatsir.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,7 +44,7 @@ public class PostController {
 
     @GetMapping("/receivers/{receiverUserId}/posts/{year}")
     @Operation(summary = "show card by receiver", description = "연도별 받은 연하장 조회")
-    public ResponseEntity<List<PostDesignDto>> getShowCard(@PathVariable Integer receiverUserId, @PathVariable String year) {
+    public ResponseEntity<List<PresentDto>> getShowCard(@PathVariable Integer receiverUserId, @PathVariable String year) {
         return ResponseEntity.ok(postService.getShowCard(receiverUserId, year));
     }
 
@@ -67,7 +68,7 @@ public class PostController {
 
     @GetMapping("/receivers/{receiverUserId}/posts/all")
     @Operation(summary = "show card by receiver", description = "받은 전체 연하장 조회")
-    public ResponseEntity<List<PostDesignDto>> getCardsByUser(@PathVariable Integer receiverUserId) {
+    public ResponseEntity<List<PresentDto>> getCardsByUser(@PathVariable Integer receiverUserId) {
         return ResponseEntity.ok(postService.getCardsByUser(receiverUserId));
     }
 

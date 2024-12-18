@@ -71,25 +71,4 @@ public class PostController {
         return ResponseEntity.ok(postService.getCardsByUser(receiverUserId));
     }
 
-    @PutMapping("/posts/{postId}")
-    @Operation(summary = "show card by receiver", description = "연하장 이미지 처리")
-    public ResponseEntity<String> savePostImage(@PathVariable Integer postID, @RequestParam("image") MultipartFile image) {
-        return ResponseEntity.ok(postService.savePostImage(postID, image));
-    }
-
-
-    @GetMapping("/posts/image/{postId}")
-    @Operation(summary = "save image of post", description = "포스트 이미지 처리")
-    public ResponseEntity<String> generateImageWithText(@PathVariable Integer postId) {
-        return ResponseEntity.ok(postService.generateImageWithText(postId));
-    }
-
-
-    // todo: 테스트용 -> 추후 삭제
-    @GetMapping("/posts/all")
-    @Operation(summary = "load post design", description = "포스트 디자인 가져오기")
-    public ResponseEntity<List<PostDesignDto>> getAllCards() {
-        return ResponseEntity.ok(postService.getAllCards());
-    }
-
 }

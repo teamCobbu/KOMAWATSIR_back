@@ -90,6 +90,7 @@ public class UserController {
     @GetMapping("/{id}")
     @Operation(summary = "Get user by id", description = "회원 정보 조회")
     public ResponseEntity<UserDto> getUser(@PathVariable Integer id) {
+        System.out.println("로그확인");
         Integer authId = userService.getAuthenticatedUser();
         if (authId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // 인증되지 않은 경우 처리

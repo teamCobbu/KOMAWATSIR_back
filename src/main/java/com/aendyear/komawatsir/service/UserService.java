@@ -1,15 +1,12 @@
 package com.aendyear.komawatsir.service;
 
 import com.aendyear.komawatsir.auth.AuthService;
-import com.aendyear.komawatsir.auth.JwtTokenProvider;
 import com.aendyear.komawatsir.auth.KakaoAuthService;
 import com.aendyear.komawatsir.auth.KakaoUserService;
 import com.aendyear.komawatsir.dto.UserDto;
 import com.aendyear.komawatsir.entity.User;
 import com.aendyear.komawatsir.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +80,9 @@ public class UserService {
     // 비회원 -> 회원 연결
     @Transactional
     public UserDto signUpWithKakao(String kakaoId, String name, String tel) {
+        if (kakaoId == null || kakaoId.trim().isEmpty() || name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("카카오 ID와 이름은 필수입니다.");
+        }
 
         User user = userRepository.findByTel(tel)
                 .map(existingUser -> {

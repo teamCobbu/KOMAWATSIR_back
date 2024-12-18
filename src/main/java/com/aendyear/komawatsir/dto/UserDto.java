@@ -1,6 +1,5 @@
 package com.aendyear.komawatsir.dto;
 
-import com.aendyear.komawatsir.entity.User;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -20,11 +19,4 @@ public class UserDto {
     private String kakaoId;
     @NotNull
     private Boolean isSmsAllowed;
-
-    public UserDto(User user) {
-        this.id = user.getId();
-        this.name = user.getName();
-        this.tel = user.getTel();
-        this.isSmsAllowed = user.getIsSmsAllowed();
-    }
 }

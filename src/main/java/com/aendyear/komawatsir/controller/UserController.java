@@ -77,7 +77,6 @@ public class UserController {
     @PostMapping //비회원 -> 회원 연결
     @Operation(summary = "Sign up with Kakao", description = "Registers a new user using Kakao information")
     public ResponseEntity<UserDto> signUpWithKakao(@RequestBody Map<String, String> payload) {
-        try {
             String kakaoId = payload.get("kakaoId");
             String name = payload.get("name");
             String tel = payload.get("tel");
@@ -86,10 +85,6 @@ public class UserController {
             }
             UserDto userDto = userService.signUpWithKakao(kakaoId, name, tel);
             return ResponseEntity.ok(userDto);
-        } catch (Exception e) {
-//            log.error("Sign up with Kakao failed", e);
-            return ResponseEntity.status(500).body(null);
-        }
     }
 
     @GetMapping("/{id}")
@@ -119,13 +114,8 @@ public class UserController {
                     .collect(Collectors.toList());
             return ResponseEntity.badRequest().body(errorMessages);
         }
-        try {
             UserDto updatedUser = userService.updateUser(id, userDto);
             return ResponseEntity.ok(updatedUser);
-        } catch (Exception e) {
-//            log.error("Error updating user", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
-        }
     }
 
     // 회원 탈퇴 (pk 유지)

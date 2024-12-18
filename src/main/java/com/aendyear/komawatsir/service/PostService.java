@@ -81,6 +81,7 @@ public class PostService {
                 present.setPostId(post.getId());
                 present.setSender(post.getSenderNickname());
                 present.setBack(post.getImageUrl());
+                present.setYear(post.getYear());
 
                 Optional<Design> designs = designRepository.findByUserIdAndYear(post.getSenderId(), post.getYear());
                 if (designs.isPresent()) {
@@ -106,6 +107,7 @@ public class PostService {
                 present.setPostId(post.getId());
                 present.setSender(post.getSenderNickname());
                 present.setBack(post.getImageUrl());
+                present.setYear(post.getYear());
 
                 Optional<Design> designs = designRepository.findByUserIdAndYear(post.getSenderId(), post.getYear());
                 if (designs.isPresent()) {

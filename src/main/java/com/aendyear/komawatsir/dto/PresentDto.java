@@ -18,4 +18,6 @@ public class PresentDto {
     private String front;
 
     private String back;
+
+    private String year;
 }

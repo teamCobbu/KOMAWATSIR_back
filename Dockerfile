@@ -21,8 +21,5 @@ COPY build/libs/komawatsir-0.0.1-SNAPSHOT.jar ./app.jar
 # 6. JAR 파일 권한 설정 (필요시)
 RUN chmod +x ./app.jar
 
-# 7. 디버깅을 위한 파일 확인
-RUN ls -al ./ && file ./app.jar
-
-# 8. 애플리케이션 실행
+# 7. 애플리케이션 실행
 ENTRYPOINT ["java", "-Djava.awt.headless=true", "-jar", "./app.jar"]

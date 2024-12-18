@@ -1,5 +1,6 @@
 package com.aendyear.komawatsir.service;
 
+import com.aendyear.komawatsir.auth.AuthService;
 import com.aendyear.komawatsir.auth.JwtTokenProvider;
 import com.aendyear.komawatsir.auth.KakaoAuthService;
 import com.aendyear.komawatsir.auth.KakaoUserService;
@@ -26,39 +27,29 @@ public class UserService {
     private final KakaoAuthService kakaoAuthService;
     private final KakaoUserService kakaoUserService;
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
 
     @Autowired
-    public UserService(KakaoAuthService kakaoAuthService, KakaoUserService kakaoUserService, UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
+    public UserService(KakaoAuthService kakaoAuthService, KakaoUserService kakaoUserService, UserRepository userRepository, AuthService authService) {
         this.kakaoAuthService = kakaoAuthService;
         this.kakaoUserService = kakaoUserService;
         this.userRepository = userRepository;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.authService = authService;
     }
 
     // ****  회원 가입 및 로그인, 로그아웃  *****
     // 카카오 로그인
     public UserDto getKakaoLogin(String code, String clientId, String redirectUri, HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = parseAccessToken(kakaoAuthService.getAccessToken(code, clientId, redirectUri));
+        String accessToken = kakaoAuthService.getAccessToken(code, clientId, redirectUri);
         if (accessToken == null) {
             throw new RuntimeException("Failed to retrieve access token.");
         }
 
-        User userInfo = getUserInfoFromKakao(accessToken);
-        if (userInfo == null) {
-            throw new RuntimeException("User info from Kakao is null");
-        }
+        User user = findOrSaveUser(kakaoUserService.getKakaoUserInfo(accessToken));
+        authService.addJwtToCookie(user.getKakaoId(), response);
+        authService.addAccessTokenToSession(accessToken, request);
 
-        User user = findOrSaveUser(getUserInfoFromKakao(accessToken));
-
-        UserDto userDto = new UserDto(user);
-
-        String jwtToken = jwtTokenProvider.createToken(user.getKakaoId());
-        addJwtToCookie(response, jwtToken);
-
-        request.getSession().setAttribute("kakao_access_token", accessToken);
-
-        return userDto;
+        return Mapper.toDto(user);
     }
 
     //인증된 사용자
@@ -75,87 +66,38 @@ public class UserService {
         return user.getId();
     }
 
-    private void addJwtToCookie(HttpServletResponse response, String jwtToken) {
-        Cookie cookie = new Cookie("JWT", jwtToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);    // HTTPS에서만 (SSL인증)
-        cookie.setPath("/");
-        cookie.setMaxAge(3600);
-        cookie.setDomain("xn--299au8vhphgpd.com");  // 쿠키가 적용될 도메인
-        response.addCookie(cookie);
-    }
-
-    // Access Token을 JSON에서 추출
-    private String parseAccessToken(String kakaoTokenJson) {
-        try {
-            return new ObjectMapper().readTree(kakaoTokenJson).get("access_token").asText();
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing JSON response: " + e.getMessage());
-        }
-    }
-
-    private User getUserInfoFromKakao(String accessToken) {
-        return Mapper.toEntity(kakaoUserService.getKakaoUserInfo(accessToken));
-    }
-
     // 사용자 정보를 데이터베이스에서 조회하거나, 없으면 새로 저장
     private User findOrSaveUser(User user) {
-        Optional<User> checkUser = userRepository.findByKakaoId(user.getKakaoId());
-        if(checkUser.isPresent()) {
-           user.setId(checkUser.get().getId());
-           user.setTel(checkUser.get().getTel());
-           user.setIsSmsAllowed(checkUser.get().getIsSmsAllowed());
-        } else {
-            user.setIsSmsAllowed(false);
-        }
-        return userRepository.save(user);
+        return userRepository.findByKakaoId(user.getKakaoId())
+                .orElseGet(() -> userRepository.save(user));
     }
 
     //로그아웃
     public boolean logout(String accessToken, HttpServletRequest request, HttpServletResponse response) {
         if (!kakaoAuthService.logout(accessToken)) return false;
-        request.getSession().invalidate();
-        deleteCookie(response, "JWT");
+        authService.invalidateSession(request);
+        authService.deleteJwtCookie(response);
         return true;
-    }
-
-    // 쿠키 삭제 메서드
-    private void deleteCookie(HttpServletResponse response, String cookieName) {
-        var cookie = new Cookie(cookieName, null);
-        cookie.setSecure(true);
-        cookie.setMaxAge(0); // 쿠키 만료 설정
-        cookie.setPath("/"); // 쿠키의 유효한 경로
-        cookie.setDomain("xn--299au8vhphgpd.com");
-        response.addCookie(cookie);
     }
 
     // 비회원 -> 회원 연결
     @Transactional
     public UserDto signUpWithKakao(String kakaoId, String name, String tel) {
 
-        Optional<User> existingUserOpt = userRepository.findByTel(tel);
+        User user = userRepository.findByTel(tel)
+                .map(existingUser -> {
+                    existingUser.setKakaoId(kakaoId);
+                    existingUser.setName(name);
+                    return existingUser;
+                })
+                .orElseGet(() -> User.builder()
+                        .kakaoId(kakaoId)
+                        .name(name)
+                        .tel(tel)
+                        .isSmsAllowed(false)
+                        .build());
 
-        // 기존 사용자가 있는 경우
-        if (existingUserOpt.isPresent()) {
-            User existingUser = existingUserOpt.get(); // 값 꺼내기
-
-            // 기존 사용자 정보 업데이트
-            existingUser.setKakaoId(kakaoId);
-            existingUser.setName(name);
-
-            User updatedUser = userRepository.save(existingUser);
-            return Mapper.toDto(updatedUser);
-        }
-
-        // 새로운 회원 생성
-        User newUser = User.builder()
-                .kakaoId(kakaoId)
-                .name(name)
-                .tel(tel)
-                .isSmsAllowed(false)
-                .build();
-        User savedUser = userRepository.save(newUser);
-        return Mapper.toDto(savedUser);
+        return Mapper.toDto(userRepository.save(user));
     }
 
     // 회원
@@ -163,13 +105,7 @@ public class UserService {
     public UserDto getUser(Integer id) {
         User user = userRepository.findById(id).orElse(null);
         if (user != null) {
-            return UserDto.builder()
-                    .id(user.getId())
-                    .name(user.getName())
-                    .tel(user.getTel())
-                    .kakaoId(user.getKakaoId())
-                    .isSmsAllowed(user.getIsSmsAllowed())
-                    .build();
+            return Mapper.toDto(user);
         }
         return null;
     }
@@ -178,7 +114,6 @@ public class UserService {
     @Transactional
     public UserDto updateUser(Integer id, UserDto userDto) {
         Optional<User> optionalUser = userRepository.findById(id);
-
         if (optionalUser.isEmpty()) {
             throw new EntityNotFoundException("User not found with Id: " + id);
         }
@@ -191,40 +126,23 @@ public class UserService {
         User updatedUser = userRepository.save(existingUser);
 
         // UserDto로 변환하여 반환
-        return new UserDto(updatedUser);
+        return Mapper.toDto(updatedUser);
     }
 
     // 회원 탈퇴
     @Transactional
     public boolean deleteUser(Integer id, String accessToken, String clientId) {
-        Optional<User> userOpt = userRepository.findById(id);
-        // 카카오 탈퇴 처리
         kakaoAuthService.unlinkUser(accessToken);
-        // 유저DB 탈퇴 처리
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
 
-            // kakaoId를 null로 설정 (PK는 그대로)
-            user.setKakaoId("");
-            user.setName("");
-            user.setTel(null);
-            user.setIsSmsAllowed(false); // 기본값
-            userRepository.save(user); // 변경된 정보를 DB에 저장
-            return true;
-        }
-        return false; // 사용자 존재하지 않으면 false 반환
-    }
-
-    public boolean validateToken(Integer userId, HttpServletRequest request) {
-        boolean b = false;
-        String token = jwtTokenProvider.resolveToken(request);
-        if (jwtTokenProvider.validateToken(token)) {
-            String kakaoId = jwtTokenProvider.getUserId(token);
-            Optional<User> userInfo = userRepository.findByKakaoId(kakaoId);
-            if (userInfo.isPresent()) {
-                b = (userInfo.get().getId().equals(userId));
-            }
-        }
-        return b;
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setKakaoId("");
+                    user.setName("");
+                    user.setTel(null);
+                    user.setIsSmsAllowed(false); // 기본값 설정
+                    userRepository.save(user);
+                    return true;
+                })
+                .orElse(false);
     }
 }

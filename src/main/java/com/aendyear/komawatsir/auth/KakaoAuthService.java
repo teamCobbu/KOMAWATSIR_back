@@ -1,5 +1,6 @@
 package com.aendyear.komawatsir.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -37,11 +38,7 @@ public class KakaoAuthService {//Access Token을 요청
                 KAKAO_TOKEN_URL, HttpMethod.POST, requestEntity, String.class
         );
 
-
-        // 응답에서 Access Token 파싱
-        String responseBody = response.getBody();
-
-        return responseBody; // 실제로는 Access Token을 추출하여 반환해야 합니다
+        return parseAccessToken(response.getBody());
     }
 
     // 카카오 로그아웃 요청
@@ -58,7 +55,6 @@ public class KakaoAuthService {//Access Token을 요청
                 entity,
                 String.class
         );
-
         return response.getStatusCode().is2xxSuccessful(); // 로그아웃 성공 여부 반환
     }
 
@@ -77,10 +73,19 @@ public class KakaoAuthService {//Access Token을 요청
                     entity,
                     String.class
             );
-            if (response.getStatusCode().is2xxSuccessful()) {return true;
-            }else {return false;}
+            if (response.getStatusCode().is2xxSuccessful()) return true;
+            else return false;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    // Access Token을 JSON에서 추출
+    private String parseAccessToken(String kakaoTokenJson) {
+        try {
+            return new ObjectMapper().readTree(kakaoTokenJson).get("access_token").asText();
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing JSON response: " + e.getMessage());
         }
     }
 }

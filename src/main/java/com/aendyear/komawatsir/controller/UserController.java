@@ -1,5 +1,6 @@
 package com.aendyear.komawatsir.controller;
 
+import com.aendyear.komawatsir.auth.AuthService;
 import com.aendyear.komawatsir.auth.SessionService;
 import com.aendyear.komawatsir.dto.UserDto;
 import com.aendyear.komawatsir.service.UserService;
@@ -29,6 +30,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private SessionService sessionService;
+    @Autowired
+    private AuthService authService;
 
     @Value("${kakao.client.id}")
     private String clientId;
@@ -53,6 +56,7 @@ public class UserController {
             UserDto userDto = userService.getKakaoLogin(code, clientId, redirectUri, request,response);
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
+//            log.error("Kakao login error", e);
             return ResponseEntity.status(500).body(null);
         }
     }
@@ -81,9 +85,9 @@ public class UserController {
                 return ResponseEntity.status(400).body(null);
             }
             UserDto userDto = userService.signUpWithKakao(kakaoId, name, tel);
-
             return ResponseEntity.ok(userDto);
         } catch (Exception e) {
+//            log.error("Sign up with Kakao failed", e);
             return ResponseEntity.status(500).body(null);
         }
     }
@@ -119,8 +123,7 @@ public class UserController {
             UserDto updatedUser = userService.updateUser(id, userDto);
             return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
-            // 예외 처리 로그
-            e.printStackTrace();
+//            log.error("Error updating user", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
     }
@@ -147,6 +150,6 @@ public class UserController {
     @GetMapping("/token/validate/{userId}")
     @Operation(summary = "token validate", description = "토큰 검증")
     public ResponseEntity<Boolean> validateToken(@PathVariable Integer userId, HttpServletRequest request) {
-        return ResponseEntity.ok(userService.validateToken(userId, request));
+        return ResponseEntity.ok(authService.validateToken(userId, request));
     }
 }

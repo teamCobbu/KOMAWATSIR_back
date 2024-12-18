@@ -30,7 +30,7 @@ public class KakaoUserService { //사용자 정보조회
         return Mapper.toDto(user);
     }
 
-    public UserDto getKakaoUserInfo(String accessToken) {
+    public User getKakaoUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -48,15 +48,13 @@ public class KakaoUserService { //사용자 정보조회
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(responseBody);
 
-            UserDto userDto = new UserDto();
-            userDto.setKakaoId(rootNode.get("id").toString());
-            JsonNode propertiesNode = rootNode.get("properties");
-            userDto.setName(propertiesNode.get("nickname").asText());
-            return userDto;
-
+            return User.builder()
+                    .kakaoId(rootNode.get("id").asText())
+                    .name(rootNode.get("properties").get("nickname").asText())
+                    .isSmsAllowed(false) // 기본값
+                    .build();
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse Kakao user info", e);
         }
     }
 }
-

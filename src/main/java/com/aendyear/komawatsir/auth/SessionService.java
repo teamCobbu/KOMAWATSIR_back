@@ -14,4 +14,16 @@ public class SessionService {
         }
         return null;
     }
+
+    public void addKakaoAccessTokenToSession(String key,HttpServletRequest request, String accessToken) {
+        HttpSession session = request.getSession(true);
+        session.setAttribute(key, accessToken);
+    }
+
+    public void invalidateSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+    }
 }

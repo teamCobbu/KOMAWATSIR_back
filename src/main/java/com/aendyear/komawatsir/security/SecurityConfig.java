@@ -37,6 +37,7 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll() // Actuator 경로 허용
                         .requestMatchers("/api/users/kakao/loginPage", "/api/users/kakao/login-test").permitAll()
                         .requestMatchers("/api/users/logout").permitAll()

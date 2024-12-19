@@ -88,7 +88,7 @@ public class PostService {
                     Design design = designs.get();
                     // thumbnail
                     Optional<Image> thumbnail = imageRepository.findById(design.getThumbnailId());
-                    thumbnail.ifPresent(image -> present.setBack(image.getPic()));
+                    thumbnail.ifPresent(image -> present.setFront(image.getPic()));
                 }
                 result.add(present);
             });

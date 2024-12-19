@@ -42,12 +42,6 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostCheck(userId, receiverId));
     }
 
-    @GetMapping("/receivers/{receiverUserId}/posts/{year}")
-    @Operation(summary = "show card by receiver", description = "연도별 받은 연하장 조회")
-    public ResponseEntity<List<PresentDto>> getShowCard(@PathVariable Integer receiverUserId, @PathVariable String year) {
-        return ResponseEntity.ok(postService.getShowCard(receiverUserId, year));
-    }
-
     @PatchMapping("/posts/{postId}/delete")
     @Operation(summary = "delete post", description = "연하장 삭제 (상태 변경)")
     public ResponseEntity<Integer> patchDeletePost(@PathVariable Integer postId) {
@@ -67,9 +61,15 @@ public class PostController {
     }
 
     @GetMapping("/receivers/{receiverUserId}/posts/all")
-    @Operation(summary = "show card by receiver", description = "받은 전체 연하장 조회")
+    @Operation(summary = "show card by receiver", description = "전체 연하장 조회")
     public ResponseEntity<List<PresentDto>> getCardsByUser(@PathVariable Integer receiverUserId) {
         return ResponseEntity.ok(postService.getCardsByUser(receiverUserId));
+    }
+
+    @GetMapping("/receivers/{receiverUserId}/posts/{year}")
+    @Operation(summary = "show card by receiver", description = "연도별 연하장 조회")
+    public ResponseEntity<List<PresentDto>> getShowCard(@PathVariable Integer receiverUserId, @PathVariable String year) {
+        return ResponseEntity.ok(postService.getShowCard(receiverUserId, year));
     }
 
 }

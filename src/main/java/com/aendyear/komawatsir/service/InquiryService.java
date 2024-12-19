@@ -135,7 +135,7 @@ public class InquiryService {
             if (parts.length != 2) {
                 throw new IllegalArgumentException("Invalid decrypted data format");
             }
-
+            System.out.println("사용자 아이디: " + Integer.parseInt(parts[0]));
             return Integer.parseInt(parts[0]); // 사용자 ID 반환
         } catch (Exception e) {
             System.out.println("decryptUserId ERROR : " + e.getMessage());
@@ -146,6 +146,7 @@ public class InquiryService {
     public UserDto getUserInquiryNickname(Integer userId) {
         UserDto user = new UserDto();
         Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
+        System.out.println("Inquiry: " + inquiry.isPresent());
         if (inquiry.isPresent()) {
             user.setId(userId);
             user.setName(inquiry.get().getNickname());

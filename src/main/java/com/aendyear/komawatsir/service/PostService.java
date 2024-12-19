@@ -101,7 +101,7 @@ public class PostService {
         List<PresentDto> result = new ArrayList<>();
         receiverRepository.findByReceiverUserIdAndYearLessThanEqual(receiverUserId, year).forEach(receiver -> {
             List<Post> posts = postRepository.findByReceiverIdAndStatusNot(receiver.getId(), PostStatus.DELETED);
-
+            System.out.println( year + "년에 받은 연하장 개수: "+ posts.size());
             posts.forEach(post -> {
                 PresentDto present = new PresentDto();
                 present.setPostId(post.getId());
@@ -154,7 +154,6 @@ public class PostService {
 
     // 로컬 폰트 로드
     public java.awt.Font loadLocalFont(String fontPath, float size) {
-        System.out.println("폰트 경로 " + fontPath);
         try (InputStream fontStream = getClass().getClassLoader().getResourceAsStream(fontPath)) {
             if (fontStream == null) {
                 throw new RuntimeException("폰트 파일을 찾을 수 없습니다: " + fontPath);
@@ -178,11 +177,9 @@ public class PostService {
         try {
             // 1. 배경 이미지 로드
             BufferedImage backgroundImage;
-            //= ImageIO.read(new File(image.getPic()));
             try {
                 URL imageUrl = new URL(dto.getImageUrl());
                 backgroundImage = ImageIO.read(imageUrl);
-
                 if (backgroundImage == null) {
                     throw new RuntimeException("Failed to read image from URL: ");
                 }
@@ -201,7 +198,7 @@ public class PostService {
             graphics.drawImage(backgroundImage, 0, 0, null);
 
             // 3. 로컬 폰트 파일 로드
-            java.awt.Font customFont = loadLocalFont("fonts/" + dto.getFont() + ".ttf", dto.getFontSize().equals(FontSize.defaultSize) ? 100f : 150f).deriveFont(java.awt.Font.BOLD);
+            java.awt.Font customFont = loadLocalFont("fonts/" + dto.getFont() + ".ttf", dto.getFontSize().equals(FontSize.defaultSize) ? 120f : 180f).deriveFont(java.awt.Font.BOLD);
             graphics.setFont(customFont);
 
             // 4. 텍스트 스타일 및 색상 설정
@@ -212,12 +209,11 @@ public class PostService {
             int maxWidth = backgroundImage.getWidth() - 100; // 최대 너비 여백 고려
             int centerX = backgroundImage.getWidth() / 2;    // 이미지 가로 중앙
             int startY = backgroundImage.getHeight() / 2 - 50; // 시작 Y 좌표 (위에서부터 적절히 조정)
-
             drawMultilineTextCentered(graphics, text, centerX, startY, maxWidth);
+
             // 6. 이미지 저장
             graphics.dispose();
             String path = uploadBufferedImgToS3(newImage);
-            System.out.println(path);
             return path;
         } catch (Exception e) {
             e.printStackTrace();
@@ -241,8 +237,7 @@ public class PostService {
             metadata.setContentLength(imageBytes.length);
 
             // S3 파일 경로 설정
-            // todo: 이름 이쁘게
-            String fileName = "post-" + System.currentTimeMillis() + ".png";
+            String fileName = "komawotsir-" + System.currentTimeMillis() + ".png";
 
             // S3에 파일 업로드
             amazonS3Client.putObject(bucket, fileName, inputStream, metadata);
@@ -291,12 +286,10 @@ public class PostService {
     // 연하장 단일 조회
     public PostDto getSinglePost(Integer postId) {
         PostDto postDto = new PostDto();
-
         Optional<Post> post = postRepository.findById(postId);
         if (post.isPresent()) {
             postDto = Mapper.toDto(post.get());
         }
-
         return postDto;
     }
 

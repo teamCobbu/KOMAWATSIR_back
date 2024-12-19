@@ -4,8 +4,10 @@ import com.aendyear.komawatsir.dto.InquiryItemDto;
 import com.aendyear.komawatsir.dto.UserDto;
 import com.aendyear.komawatsir.entity.Inquiry;
 import com.aendyear.komawatsir.entity.InquiryItem;
+import com.aendyear.komawatsir.entity.User;
 import com.aendyear.komawatsir.repository.InquiryItemRepository;
 import com.aendyear.komawatsir.repository.InquiryRepository;
+import com.aendyear.komawatsir.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,9 @@ public class InquiryService {
 
     @Autowired
     private InquiryRepository inquiryRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private InquiryItemRepository inquiryItemRepository;
@@ -143,13 +148,14 @@ public class InquiryService {
     }
 
     public UserDto getUserInquiryNickname(Integer userId) {
-        UserDto user = new UserDto();
-        Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
-        System.out.println("Inquiry: " + inquiry.isPresent());
-        if (inquiry.isPresent()) {
-            user.setId(userId);
-            user.setName(inquiry.get().getNickname());
-        }
-        return user;
+        System.out.println("getUserInquiryNickname 호출됨 - userId: " + userId);
+        // Inquiry가 n개임
+//        Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
+//        System.out.println("Inquiry: " + inquiry.isPresent());
+//        if (inquiry.isPresent()) {
+//            user.setId(userId);
+//            user.setName(inquiry.get().getNickname());
+//        }
+        return Mapper.toDto(userRepository.findById(userId).get());
     }
 }

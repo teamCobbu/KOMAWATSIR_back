@@ -75,7 +75,7 @@ public class PostService {
 
         receiverRepository.findByReceiverUserIdAndYear(receiverUserId, year).forEach(receiver -> {
             List<Post> posts = postRepository.findByReceiverIdAndYearAndStatusNot(receiver.getId(), year, PostStatus.DELETED);
-
+            System.out.println(posts.size());
             posts.forEach(post -> {
                 PresentDto present = new PresentDto();
                 present.setPostId(post.getId());
@@ -99,7 +99,6 @@ public class PostService {
     // 유저가 받은 전체 연하장
     public List<PresentDto> getCardsByUser(Integer receiverUserId) {
         List<PresentDto> result = new ArrayList<>();
-        System.out.println( year + "년에 받은 연하장 개수: "+ receiverRepository.findByReceiverUserId(receiverUserId).size());
         receiverRepository.findByReceiverUserId(receiverUserId).forEach(receiver -> {
             List<Post> posts = postRepository.findByReceiverIdAndStatusNot(receiver.getId(), PostStatus.DELETED);
             posts.forEach(post -> {
@@ -198,7 +197,7 @@ public class PostService {
             graphics.drawImage(backgroundImage, 0, 0, null);
 
             // 3. 로컬 폰트 파일 로드
-            java.awt.Font customFont = loadLocalFont("fonts/" + dto.getFont() + ".ttf", dto.getFontSize().equals(FontSize.defaultSize) ? 120f : 180f).deriveFont(java.awt.Font.BOLD);
+            java.awt.Font customFont = loadLocalFont("fonts/" + dto.getFont() + ".ttf", dto.getFontSize().equals(FontSize.defaultSize) ? 100f : 150f).deriveFont(java.awt.Font.BOLD);
             graphics.setFont(customFont);
 
             // 4. 텍스트 스타일 및 색상 설정

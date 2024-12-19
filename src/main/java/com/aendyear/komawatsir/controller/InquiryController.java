@@ -74,7 +74,6 @@ public class InquiryController {
     @Operation(summary = "validate url", description = "암호화된 링크 검증")
     public ResponseEntity<UserDto> validateUrl(@RequestParam String link) {
         Integer userId = inquiryService.validateUrl(link);
-        System.out.println("유저 아이디: " + userId);
         return ResponseEntity.ok(inquiryService.getUserInquiryNickname(userId));
     }
 }

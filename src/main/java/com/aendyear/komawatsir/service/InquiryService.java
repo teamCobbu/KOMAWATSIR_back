@@ -135,7 +135,6 @@ public class InquiryService {
             if (parts.length != 2) {
                 throw new IllegalArgumentException("Invalid decrypted data format");
             }
-            System.out.println("사용자 아이디: " + Integer.parseInt(parts[0]));
             return Integer.parseInt(parts[0]); // 사용자 ID 반환
         } catch (Exception e) {
             System.out.println("decryptUserId ERROR : " + e.getMessage());

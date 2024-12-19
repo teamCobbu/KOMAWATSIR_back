@@ -99,9 +99,9 @@ public class PostService {
     // 유저가 받은 전체 연하장
     public List<PresentDto> getCardsByUser(Integer receiverUserId) {
         List<PresentDto> result = new ArrayList<>();
-        receiverRepository.findByReceiverUserIdAndYearLessThanEqual(receiverUserId, year).forEach(receiver -> {
+        System.out.println( year + "년에 받은 연하장 개수: "+ receiverRepository.findByReceiverUserId(receiverUserId).size());
+        receiverRepository.findByReceiverUserId(receiverUserId).forEach(receiver -> {
             List<Post> posts = postRepository.findByReceiverIdAndStatusNot(receiver.getId(), PostStatus.DELETED);
-            System.out.println( year + "년에 받은 연하장 개수: "+ posts.size());
             posts.forEach(post -> {
                 PresentDto present = new PresentDto();
                 present.setPostId(post.getId());

@@ -123,7 +123,7 @@ public class InquiryService {
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
             byte[] encrypted = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            System.out.println("링크: " + Base64.getUrlEncoder().withoutPadding().encodeToString(encrypted));
+//            System.out.println("링크: " + Base64.getUrlEncoder().withoutPadding().encodeToString(encrypted));
             return Base64.getUrlEncoder().withoutPadding().encodeToString(encrypted);
         } catch (Exception e) {
             System.out.println("encryptUserId ERROR : " + e.getMessage());
@@ -155,14 +155,12 @@ public class InquiryService {
     }
 
     public UserDto getUserInquiryNickname(Integer userId) {
-        System.out.println("getUserInquiryNickname 호출됨 - userId: " + userId);
-        // Inquiry가 n개임
-//        Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
-//        System.out.println("Inquiry: " + inquiry.isPresent());
-//        if (inquiry.isPresent()) {
-//            user.setId(userId);
-//            user.setName(inquiry.get().getNickname());
-//        }
-        return Mapper.toDto(userRepository.findById(userId).get());
+        UserDto user = new UserDto();
+        Optional<Inquiry> inquiry = inquiryRepository.findByUserIdAndYear(userId, nextYear);
+        if (inquiry.isPresent()) {
+            user.setId(userId);
+            user.setName(inquiry.get().getNickname());
+        }
+        return user;
     }
 }

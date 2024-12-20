@@ -41,8 +41,11 @@ public class InquiryController {
     @PostMapping("/{userId}/{nickname}")
     @Operation(summary = "add inquiry", description = "닉네임 설정하기")
     public ResponseEntity<Inquiry> postQuestion(@PathVariable Integer userId, @PathVariable String nickname) {
+        System.out.println("1 : " +nickname);
         Inquiry inquiry = inquiryService.postQuestion(userId, nickname);
+        System.out.println("2");
         designService.addDesign(userId);
+        System.out.println("3");
         return ResponseEntity.ok(inquiry);
     }
 

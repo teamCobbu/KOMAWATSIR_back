@@ -31,7 +31,6 @@ public class SecurityConfig {//JWT 토큰을 생성하고 검증
                         .requestMatchers("/api/users/kakao/loginPage", "/api/users/kakao/login-test").permitAll()
                         .requestMatchers("/api/users/logout").permitAll()
                         .requestMatchers("/api/inquiry/validate/url").permitAll()
-                        .requestMatchers("/api/inquiry/**").permitAll()
                         .requestMatchers("/api/users/*/receivers").permitAll()
                         .requestMatchers("/api/users/token/validate/**").permitAll()
                         .anyRequest().authenticated())

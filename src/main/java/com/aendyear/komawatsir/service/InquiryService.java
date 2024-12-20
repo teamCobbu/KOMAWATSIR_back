@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.swing.text.html.Option;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -70,7 +71,13 @@ public class InquiryService {
     @Transactional
     public Inquiry postQuestion(Integer userId, String nickname) {
         Inquiry inquiry = new Inquiry();
-
+        
+        Optional<Inquiry> check = inquiryRepository.findByUserIdAndYear(userId, nextYear);
+        if(check.isPresent()) {
+            inquiry = check.get();
+            return inquiry;
+        }
+        
         inquiry.setUserId(userId);
         inquiry.setYear(nextYear);
         inquiry.setNickname(nickname);

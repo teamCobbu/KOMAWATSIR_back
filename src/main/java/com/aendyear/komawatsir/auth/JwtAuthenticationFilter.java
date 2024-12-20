@@ -67,6 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // JWT 토�
         // 인증이 필요없는 경로
         return requestURI.equals("/api/users/kakao/login-test") ||
                 requestURI.equals("/api/users/kakao/loginPage") ||
+                requestURI.matches("^/api/inquiry/.*$") || // inquiry/** 경로 제외
                 requestURI.equals("/api/users/logout") ||
                 (httpMethod.equals("POST") && requestURI.matches("^/api/users/\\d+/receivers$")) ||
                 (httpMethod.equals("GET")) && requestURI.equals("/api/inquiry/validate/url");

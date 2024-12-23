@@ -39,6 +39,7 @@ public class ReceiverController {
     @Operation(summary = "check receiver tel duplication", description = "수신인 번호 중복 확인하기")
     public ResponseEntity<Boolean> postCheckReceiverGuest(@PathVariable(name = "userId") Integer senderId, @RequestParam String tel) {
         // true 일 경우 이미 신청된 전화번호
+        System.out.println("번호 중복 확인: " + tel);
         return ResponseEntity.ok(receiverService.duplicationCheck(senderId, tel));
     }
 

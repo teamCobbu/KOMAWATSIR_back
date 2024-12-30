@@ -222,4 +222,14 @@ public class Mapper {
                 .isSmsAllowed(entity.getIsSmsAllowed())
                 .build();
     }
+
+    public static PresentDto toPresentDto(Post post) {
+        return PresentDto.builder()
+                .postId(post.getId())
+                .sender(post.getSenderNickname())
+                .back(post.getImageUrl())
+                .year(post.getYear())
+                .build();
+    }
+
 }

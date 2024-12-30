@@ -77,16 +77,11 @@ public class PostService {
             List<Post> posts = postRepository.findByReceiverIdAndYearAndStatusNot(receiver.getId(), year, PostStatus.DELETED);
             System.out.println(posts.size());
             posts.forEach(post -> {
-                PresentDto present = new PresentDto();
-                present.setPostId(post.getId());
-                present.setSender(post.getSenderNickname());
-                present.setBack(post.getImageUrl());
-                present.setYear(post.getYear());
+                PresentDto present = Mapper.toPresentDto(post);
 
                 Optional<Design> designs = designRepository.findByUserIdAndYear(post.getSenderId(), post.getYear());
-                if (designs.isPresent()) {
+                if (designs.isPresent()) { // thumbnail
                     Design design = designs.get();
-                    // thumbnail
                     Optional<Image> thumbnail = imageRepository.findById(design.getThumbnailId());
                     thumbnail.ifPresent(image -> present.setFront(image.getPic()));
                 }
@@ -102,16 +97,11 @@ public class PostService {
         receiverRepository.findByReceiverUserId(receiverUserId).forEach(receiver -> {
             List<Post> posts = postRepository.findByReceiverIdAndStatusNot(receiver.getId(), PostStatus.DELETED);
             posts.forEach(post -> {
-                PresentDto present = new PresentDto();
-                present.setPostId(post.getId());
-                present.setSender(post.getSenderNickname());
-                present.setBack(post.getImageUrl());
-                present.setYear(post.getYear());
+                PresentDto present = Mapper.toPresentDto(post);
 
                 Optional<Design> designs = designRepository.findByUserIdAndYear(post.getSenderId(), post.getYear());
                 if (designs.isPresent()) {
-                    Design design = designs.get();
-                    // thumbnail
+                    Design design = designs.get(); // thumbnail
                     Optional<Image> thumbnail = imageRepository.findById(design.getThumbnailId());
                     thumbnail.ifPresent(image -> present.setFront(image.getPic()));
                 }
